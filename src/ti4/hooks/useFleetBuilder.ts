@@ -48,8 +48,6 @@ export const useFleetBuilder: (
       ),
     [supportedUnits]
   );
-  console.log(supportedUnits);
-  console.log(prototypes);
 
   const addUnit = useCallback(
     (unit: UnitEnum) => {
