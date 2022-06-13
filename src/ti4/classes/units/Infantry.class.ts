@@ -1,27 +1,27 @@
-import { UnitEnum } from "../enums/Unit.enum";
+import { UnitEnum } from "../../enums/Unit.enum";
 import { Unit } from "./Unit.class";
 
-export class Fighter extends Unit {
+export class Infantry extends Unit {
   constructor(options: { isUpgraded: boolean }) {
     const { isUpgraded = false } = options;
 
     super({
-      unitEnum: UnitEnum.FIGHTER,
+      unitEnum: UnitEnum.INFANTRY,
       base: {
-        name: "Fighter 1",
+        name: "Infantry 1",
         cost: 0.5,
-        combat: 9,
+        combat: 8,
         numAttacks: 1,
         move: 0,
         capacity: 0,
         canSustainDamage: false,
       },
       upgrade: {
-        name: "Fighter 2",
+        name: "Infantry 2",
         cost: 0.5,
-        combat: 8,
+        combat: 7,
         numAttacks: 1,
-        move: 2,
+        move: 0,
         capacity: 0,
         canSustainDamage: false,
       },

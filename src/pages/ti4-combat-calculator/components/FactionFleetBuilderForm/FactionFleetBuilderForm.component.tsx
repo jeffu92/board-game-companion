@@ -9,7 +9,7 @@ import { useCallback, useState } from "react";
 import { FactionEnum } from "../../../../ti4/enums/Faction.enum";
 import "./FactionFleetBuilderForm.component.css";
 import { FleetBuilderForm } from "../FleetBuilderForm/FleetBuilderForm.component";
-import { Unit } from "../../../../ti4/classes/Unit.class";
+import { Unit } from "../../../../ti4/classes/units/Unit.class";
 
 export interface FactionFleetBuilderFormProps {
   onFleetChange: (newFleet: Map<string, Unit>) => void;
