@@ -11,6 +11,7 @@ import { Fighter } from "../../../../ti4/classes/Fighter.class";
 import "./WinnuFleetBuilderForm.component.css";
 import { UpgradeDowngradeButton } from "../UpgradeDowngradeButton/UpgradeDowngradeButton.component";
 import { WarSun } from "../../../../ti4/classes/WarSun.class";
+import { Carrier } from "../../../../ti4/classes/Carrier.class";
 
 export interface WinnuFleetBuilderFormProps {
   onFleetChange: (newFleet: Map<string, Unit>) => void;
@@ -28,6 +29,7 @@ export const WinnuFleetBuilderForm = (props: WinnuFleetBuilderFormProps) => {
       ],
       [UnitEnum.CRUISER, new Cruiser({ isUpgraded: false })],
       [UnitEnum.FIGHTER, new Fighter({ isUpgraded: false })],
+      [UnitEnum.CARRIER, new Carrier({isUpgraded:false})],
     ])
   );
 
@@ -62,6 +64,10 @@ export const WinnuFleetBuilderForm = (props: WinnuFleetBuilderFormProps) => {
 
   const handleAddFighterClick = useCallback(() => {
     addUnit(UnitEnum.FIGHTER);
+  }, [addUnit]);
+
+  const handleAddCarrierClick = useCallback(() => {
+    addUnit(UnitEnum.CARRIER);
   }, [addUnit]);
 
   const handleRemoveUnitClick = useCallback(
@@ -123,6 +129,14 @@ export const WinnuFleetBuilderForm = (props: WinnuFleetBuilderFormProps) => {
 
   const handleDowngradeFighterClick = useCallback(() => {
     onGradeChange({ unitEnum: UnitEnum.FIGHTER, shouldUpgrade: false });
+  }, [onGradeChange]);
+
+  const handleUpgradeCarrierClick = useCallback(() => {
+    onGradeChange({ unitEnum: UnitEnum.CARRIER, shouldUpgrade: true });
+  }, [onGradeChange]);
+
+  const handleDowngradeCarrierClick = useCallback(() => {
+    onGradeChange({ unitEnum: UnitEnum.CARRIER, shouldUpgrade: false });
   }, [onGradeChange]);
 
   const handleSustainDamageClick = useCallback(
@@ -197,6 +211,18 @@ export const WinnuFleetBuilderForm = (props: WinnuFleetBuilderFormProps) => {
           isUpgraded={prototypes.get(UnitEnum.FIGHTER)?.isUpgraded ?? false}
           onUpgradeClick={handleUpgradeFighterClick}
           onDowngradeClick={handleDowngradeFighterClick}
+        />
+        <Button
+          onClick={handleAddCarrierClick}
+          startIcon={<Add />}
+          variant="outlined"
+        >
+          {prototypes.get(UnitEnum.CARRIER)?.name ?? ""}
+        </Button>
+        <UpgradeDowngradeButton
+          isUpgraded={prototypes.get(UnitEnum.CARRIER)?.isUpgraded ?? false}
+          onUpgradeClick={handleUpgradeCarrierClick}
+          onDowngradeClick={handleDowngradeCarrierClick}
         />
       </div>
       {Array.from(fleet.entries()).map(([id, unit]) => {
