@@ -1,0 +1,7 @@
+.winnu-fleet-builder-form__add-ship-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto;
+  row-gap: 10px;
+  column-gap: 10px;
+}

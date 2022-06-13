@@ -1,0 +1,8 @@
+.faction-fleet-builder-form {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    row-gap: 10px;
+    column-gap: 10px;
+    margin: 10px;
+}
