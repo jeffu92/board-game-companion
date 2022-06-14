@@ -1,4 +1,4 @@
-import { Unit } from "../classes/Unit.class";
+import { Unit } from "../classes/units/Unit.class";
 
 export interface CombatStats {
   attackers: {

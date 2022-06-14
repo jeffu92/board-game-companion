@@ -1,5 +1,5 @@
-import { UnitEnum } from "../enums/Unit.enum";
-import { randomIntFromInterval } from "../utils/randomIntFromInterval";
+import { UnitEnum } from "../../enums/Unit.enum";
+import { randomIntFromInterval } from "../../utils/randomIntFromInterval";
 
 export interface UnitProperties {
   name: string;
