@@ -4,4 +4,5 @@ export enum UnitEnum {
   CRUISER = "Cruiser",
   FIGHTER = "Fighter",
   CARRIER = "Carrier",
+  INFANTRY = "Infantry",
 }

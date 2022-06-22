@@ -1,6 +1,6 @@
 import { Button, Paper } from "@mui/material";
 import { useCallback, useState } from "react";
-import { Unit } from "../../ti4/classes/Unit.class";
+import { Unit } from "../../ti4/classes/units/Unit.class";
 import { CombatStats, simulateCombat } from "../../ti4/utils/simulateCombat";
 import { FactionFleetBuilderForm } from "./components/FactionFleetBuilderForm/FactionFleetBuilderForm.component";
 import "./Ti4CombatCalculator.page.css";

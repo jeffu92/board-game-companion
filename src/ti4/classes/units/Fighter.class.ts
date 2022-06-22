@@ -1,4 +1,4 @@
-import { UnitEnum } from "../enums/Unit.enum";
+import { UnitEnum } from "../../enums/Unit.enum";
 import { Unit } from "./Unit.class";
 
 export class Fighter extends Unit {
