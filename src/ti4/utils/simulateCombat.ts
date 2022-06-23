@@ -1,4 +1,5 @@
 import { Unit } from "../classes/units/Unit.class";
+import { UnitEnum } from "../enums/Unit.enum";
 
 export interface CombatStats {
   attackers: {
@@ -19,6 +20,21 @@ const generateHits: (units: Unit[]) => number = (units) => {
     }
   }
   return numHits;
+};
+
+const generateAntiFighterBarrageHits: (units: Unit[]) => number = (units) => {
+  let numHits = 0;
+  for (let i = 0; i < units.length; i++) {
+    const unit = units[i];
+    if (unit) {
+      numHits += unit.simulateAntiFighterBarrage();
+    }
+  }
+  return numHits;
+};
+
+const isFighter: (unit: Unit) => boolean = (unit) => {
+  return unit.unitEnum === UnitEnum.FIGHTER;
 };
 
 /**
@@ -64,12 +80,48 @@ export const simulateCombat: (
     simulationRound < numSimulations;
     simulationRound++
   ) {
+    let attackingFighters = Array.from(attackingUnits.values())
+      .map((unit) => Unit.copy(unit))
+      .filter(isFighter);
+    let attackingNonFighters = Array.from(attackingUnits.values())
+      .map((unit) => Unit.copy(unit))
+      .filter((unit) => {
+        return !isFighter(unit);
+      });
+    let defendingFighters = Array.from(defendingUnits.values())
+      .map((unit) => Unit.copy(unit))
+      .filter(isFighter);
+    let defendingNonFighters = Array.from(defendingUnits.values())
+      .map((unit) => Unit.copy(unit))
+      .filter((unit) => {
+        return !isFighter(unit);
+      });
+
+    const attackerAntiFighterBarrageHits =
+      generateAntiFighterBarrageHits(attackingNonFighters);
+    const defenderAntiFighterBarrageHits =
+      generateAntiFighterBarrageHits(defendingNonFighters);
+    for (let i = 0; i < attackerAntiFighterBarrageHits; i++) {
+      if (defendingFighters.length > 0) {
+        defendingFighters.pop();
+      } else {
+        break;
+      }
+    }
+
+    for (let i = 0; i < defenderAntiFighterBarrageHits; i++) {
+      if (attackingFighters.length > 0) {
+        attackingFighters.pop();
+      } else {
+        break;
+      }
+    }
     // initialize remaining units
     let remainingAttackingUnitsByHitAssignmentOrder = sortByHitAssignmentOrder(
-      Array.from(attackingUnits.values()).map((unit) => Unit.copy(unit))
+      attackingNonFighters.concat(attackingFighters)
     );
     let remainingDefendingUnitsByHitAssignmentOrder = sortByHitAssignmentOrder(
-      Array.from(defendingUnits.values()).map((unit) => Unit.copy(unit))
+      defendingNonFighters.concat(defendingFighters)
     );
 
     // while there are units left on both sides

@@ -1,3 +1,4 @@
+import { AbilityEnum } from "../../enums/Ability.enum";
 import { UnitEnum } from "../../enums/Unit.enum";
 import { randomIntFromInterval } from "../../utils/randomIntFromInterval";
 
@@ -11,8 +12,13 @@ export interface UnitProperties {
   canSustainDamage: boolean;
   bombardment?: number;
   numBombardments?: number;
-  antiFighterBarrage?: number;
-  numAntiFighterBarrages?: number;
+  antiFighterBarrage?: Ability;
+}
+
+export interface Ability {
+  abilityEnum: AbilityEnum;
+  numAttacks: number;
+  combat: number;
 }
 
 export class Unit {
@@ -124,6 +130,12 @@ export class Unit {
       : this._base.numBombardments;
   }
 
+  get antiFighterBarrage() {
+    return this.isUpgraded && this._upgrade
+      ? this._upgrade.antiFighterBarrage
+      : this._base.antiFighterBarrage;
+  }
+
   get isUpgraded() {
     return this._isUpgraded;
   }
@@ -157,6 +169,18 @@ export class Unit {
     for (let i = 0; i < this.numAttacks; i++) {
       if (randomIntFromInterval(1, 10) >= this.combat) {
         numHits += 1;
+      }
+    }
+    return numHits;
+  }
+
+  simulateAntiFighterBarrage() {
+    let numHits = 0;
+    if (this.antiFighterBarrage) {
+      for (let i = 0; i < this.antiFighterBarrage.numAttacks; i++) {
+        if (randomIntFromInterval(1, 10) >= this.antiFighterBarrage.combat) {
+          numHits += 1;
+        }
       }
     }
     return numHits;
