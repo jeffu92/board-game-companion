@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 import { Cruiser } from "../classes/units/Cruiser.class";
-import { Dreadnaught } from "../classes/units/Dreadnaught.class";
+import { Dreadnought } from "../classes/units/Dreadnought.class";
 import { Fighter } from "../classes/units/Fighter.class";
 import { Infantry } from "../classes/units/Infantry.class";
 import { Unit } from "../classes/units/Unit.class";
@@ -12,8 +12,8 @@ import { Destroyer } from "../classes/units/Destroyer.class";
 export const unitMap: Map<UnitEnum, Unit> = new Map([
   [UnitEnum.WARSUN, new WarSun({ hasSustainedDamage: false })],
   [
-    UnitEnum.DREADNAUGHT,
-    new Dreadnaught({ isUpgraded: false, hasSustainedDamage: false }),
+    UnitEnum.DREADNOUGHT,
+    new Dreadnought({ isUpgraded: false, hasSustainedDamage: false }),
   ],
   [UnitEnum.CRUISER, new Cruiser({ isUpgraded: false })],
   [UnitEnum.FIGHTER, new Fighter({ isUpgraded: false })],

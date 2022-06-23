@@ -22,7 +22,7 @@ export class WarSun extends Unit {
     const { hasSustainedDamage = false } = options;
 
     super({
-      unitEnum: UnitEnum.DREADNAUGHT,
+      unitEnum: UnitEnum.DREADNOUGHT,
       base: WarSun.baseWarSun,
       isUpgraded: false,
       productionLimit: 2,

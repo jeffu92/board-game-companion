@@ -2,7 +2,7 @@ import { AbilityEnum } from "../../enums/Ability.enum";
 import { UnitEnum } from "../../enums/Unit.enum";
 import { Unit, UnitProperties } from "./Unit.class";
 
-export class Dreadnaught extends Unit {
+export class Dreadnought extends Unit {
   static baseDreadnaught: UnitProperties = {
     name: "Dreadnaught 1",
     cost: 4,
@@ -36,9 +36,9 @@ export class Dreadnaught extends Unit {
     const { isUpgraded = false, hasSustainedDamage = false } = options;
 
     super({
-      unitEnum: UnitEnum.DREADNAUGHT,
-      base: Dreadnaught.baseDreadnaught,
-      upgrade: Dreadnaught.upgradeDreadnaught,
+      unitEnum: UnitEnum.DREADNOUGHT,
+      base: Dreadnought.baseDreadnaught,
+      upgrade: Dreadnought.upgradeDreadnaught,
       isUpgraded,
       productionLimit: 5,
       hasSustainedDamage,
