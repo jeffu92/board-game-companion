@@ -1,3 +1,4 @@
+import { AbilityEnum } from "../../enums/Ability.enum";
 import { UnitEnum } from "../../enums/Unit.enum";
 import { Unit, UnitProperties } from "./Unit.class";
 
@@ -10,7 +11,11 @@ export class Dreadnaught extends Unit {
     move: 1,
     capacity: 1,
     canSustainDamage: true,
-    bombardment: 5,
+    bombardment: {
+      abilityEnum: AbilityEnum.BOMBARDMENT,
+      combat: 5,
+      numAttacks: 1,
+    },
   };
   static upgradeDreadnaught: UnitProperties = {
     name: "Dreadnaught 2",
@@ -20,7 +25,11 @@ export class Dreadnaught extends Unit {
     move: 2,
     capacity: 1,
     canSustainDamage: true,
-    bombardment: 5,
+    bombardment: {
+      abilityEnum: AbilityEnum.BOMBARDMENT,
+      combat: 5,
+      numAttacks: 1,
+    },
   };
 
   constructor(options: { isUpgraded: boolean; hasSustainedDamage: boolean }) {

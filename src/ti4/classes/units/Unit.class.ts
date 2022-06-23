@@ -10,8 +10,7 @@ export interface UnitProperties {
   move: number;
   capacity: number;
   canSustainDamage: boolean;
-  bombardment?: number;
-  numBombardments?: number;
+  bombardment?: Ability;
   antiFighterBarrage?: Ability;
 }
 
@@ -122,12 +121,6 @@ export class Unit {
     return this.isUpgraded && this._upgrade
       ? this._upgrade.bombardment
       : this._base.bombardment;
-  }
-
-  get numBombardments() {
-    return this.isUpgraded && this._upgrade
-      ? this._upgrade.numBombardments
-      : this._base.numBombardments;
   }
 
   get antiFighterBarrage() {

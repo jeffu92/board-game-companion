@@ -1,3 +1,4 @@
+import { AbilityEnum } from "../../enums/Ability.enum";
 import { UnitEnum } from "../../enums/Unit.enum";
 import { Unit, UnitProperties } from "./Unit.class";
 
@@ -10,8 +11,11 @@ export class WarSun extends Unit {
     move: 2,
     capacity: 6,
     canSustainDamage: true,
-    bombardment: 3,
-    numBombardments: 3,
+    bombardment: {
+      abilityEnum: AbilityEnum.BOMBARDMENT,
+      combat: 3,
+      numAttacks: 3,
+    },
   };
 
   constructor(options: { hasSustainedDamage: boolean }) {
