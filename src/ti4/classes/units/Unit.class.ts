@@ -11,6 +11,8 @@ export interface UnitProperties {
   canSustainDamage: boolean;
   bombardment?: number;
   numBombardments?: number;
+  antiFighterBarrage?: number;
+  numAntiFighterBarrages?: number;
 }
 
 export class Unit {
