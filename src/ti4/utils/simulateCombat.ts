@@ -1,3 +1,4 @@
+import { Fleet } from "../classes/Fleet.class";
 import { Unit } from "../classes/units/Unit.class";
 import { UnitEnum } from "../enums/Unit.enum";
 
@@ -10,60 +11,6 @@ export interface CombatStats {
   };
   tiePerc: number;
 }
-
-const generateHits: (units: Unit[]) => number = (units) => {
-  let numHits = 0;
-  for (let i = 0; i < units.length; i++) {
-    const unit = units[i];
-    if (unit) {
-      numHits += unit.simulateCombat();
-    }
-  }
-  return numHits;
-};
-
-const generateAntiFighterBarrageHits: (units: Unit[]) => number = (units) => {
-  let numHits = 0;
-  for (let i = 0; i < units.length; i++) {
-    const unit = units[i];
-    if (unit) {
-      numHits += unit.simulateAntiFighterBarrage();
-    }
-  }
-  return numHits;
-};
-
-const isFighter: (unit: Unit) => boolean = (unit) => {
-  return unit.unitEnum === UnitEnum.FIGHTER;
-};
-
-/**
- * Sorts an array of units in descending order of combat rating.
- * @param a First unit
- * @param b Second unit
- * @returns A number, if greater than 0, sort a before b
- */
-const compareByCombatRating = (a: Unit, b: Unit) => {
-  return b.combatRating - a.combatRating;
-};
-
-const sortByHitAssignmentOrder: (units: Unit[]) => Unit[] = (units) => {
-  let sustainDamageUnits: Unit[] = [];
-  let nonSustainDamageUnits: Unit[] = [];
-
-  units.forEach((unit) => {
-    if (unit.isEligibleForSustainDamage) {
-      sustainDamageUnits.push(unit);
-    } else {
-      nonSustainDamageUnits.push(unit);
-    }
-  });
-
-  sustainDamageUnits.sort(compareByCombatRating);
-  nonSustainDamageUnits.sort(compareByCombatRating);
-
-  return sustainDamageUnits.concat(nonSustainDamageUnits);
-};
 
 export const simulateCombat: (
   attackingUnits: Map<string, Unit>,
@@ -80,108 +27,27 @@ export const simulateCombat: (
     simulationRound < numSimulations;
     simulationRound++
   ) {
-    let attackingFighters = Array.from(attackingUnits.values())
-      .map((unit) => Unit.copy(unit))
-      .filter(isFighter);
-    let attackingNonFighters = Array.from(attackingUnits.values())
-      .map((unit) => Unit.copy(unit))
-      .filter((unit) => {
-        return !isFighter(unit);
-      });
-    let defendingFighters = Array.from(defendingUnits.values())
-      .map((unit) => Unit.copy(unit))
-      .filter(isFighter);
-    let defendingNonFighters = Array.from(defendingUnits.values())
-      .map((unit) => Unit.copy(unit))
-      .filter((unit) => {
-        return !isFighter(unit);
-      });
+    const attackingFleet = new Fleet({ units: attackingUnits });
+    const defendingFleet = new Fleet({ units: defendingUnits });
 
-    const attackerAntiFighterBarrageHits =
-      generateAntiFighterBarrageHits(attackingNonFighters);
-    const defenderAntiFighterBarrageHits =
-      generateAntiFighterBarrageHits(defendingNonFighters);
-    for (let i = 0; i < attackerAntiFighterBarrageHits; i++) {
-      if (defendingFighters.length > 0) {
-        defendingFighters.pop();
-      } else {
-        break;
-      }
-    }
-
-    for (let i = 0; i < defenderAntiFighterBarrageHits; i++) {
-      if (attackingFighters.length > 0) {
-        attackingFighters.pop();
-      } else {
-        break;
-      }
-    }
-    // initialize remaining units
-    let remainingAttackingUnitsByHitAssignmentOrder = sortByHitAssignmentOrder(
-      attackingNonFighters.concat(attackingFighters)
-    );
-    let remainingDefendingUnitsByHitAssignmentOrder = sortByHitAssignmentOrder(
-      defendingNonFighters.concat(defendingFighters)
-    );
+    // generate anti-fighter barrage hits for both sides
+    const attackerAntiFighterBarrageHits = attackingFleet.simulateAntiFighterBarrage();
+    const defenderAntiFighterBarrageHits = defendingFleet.simulateAntiFighterBarrage();
+    attackingFleet.hit(defenderAntiFighterBarrageHits, UnitEnum.FIGHTER);
+    defendingFleet.hit(attackerAntiFighterBarrageHits, UnitEnum.FIGHTER);
 
     // while there are units left on both sides
-    while (
-      remainingAttackingUnitsByHitAssignmentOrder.length > 0 &&
-      remainingDefendingUnitsByHitAssignmentOrder.length > 0
-    ) {
+    while (attackingFleet.length > 0 && defendingFleet.length > 0) {
       // generate hits for both sides
-      const remainingAttackingUnitHits = generateHits(
-        remainingAttackingUnitsByHitAssignmentOrder
-      );
-      const remainingDefendingUnitHits = generateHits(
-        remainingDefendingUnitsByHitAssignmentOrder
-      );
-
-      // assign hits to both sides
-      // assign hits to defenders
-      const defendingUnitsThatSustainedDamage = [];
-      for (let i = 0; i < remainingAttackingUnitHits; i++) {
-        const hitUnit = remainingDefendingUnitsByHitAssignmentOrder.pop();
-        if (hitUnit?.isEligibleForSustainDamage) {
-          hitUnit.sustainDamage();
-          defendingUnitsThatSustainedDamage.push(hitUnit);
-        }
-      }
-      remainingDefendingUnitsByHitAssignmentOrder.push(
-        ...defendingUnitsThatSustainedDamage
-      );
-
-      // assign hits to attackers
-      const attackingUnitsThatSustainedDamage = [];
-      for (let i = 0; i < remainingDefendingUnitHits; i++) {
-        const hitUnit = remainingAttackingUnitsByHitAssignmentOrder.pop();
-        if (hitUnit?.isEligibleForSustainDamage) {
-          hitUnit.sustainDamage();
-          attackingUnitsThatSustainedDamage.push(hitUnit);
-        }
-      }
-      remainingAttackingUnitsByHitAssignmentOrder.push(
-        ...attackingUnitsThatSustainedDamage
-      );
-
-      // reorder units on both sides by combat rating
-      remainingAttackingUnitsByHitAssignmentOrder = sortByHitAssignmentOrder(
-        remainingAttackingUnitsByHitAssignmentOrder
-      );
-      remainingDefendingUnitsByHitAssignmentOrder = sortByHitAssignmentOrder(
-        remainingDefendingUnitsByHitAssignmentOrder
-      );
+      const remainingAttackingUnitHits = attackingFleet.simulateCombat();
+      const remainingDefendingUnitHits = defendingFleet.simulateCombat();
+      attackingFleet.hit(remainingDefendingUnitHits);
+      defendingFleet.hit(remainingAttackingUnitHits);
     }
 
-    if (
-      remainingAttackingUnitsByHitAssignmentOrder.length > 0 &&
-      remainingDefendingUnitsByHitAssignmentOrder.length === 0
-    ) {
+    if (attackingFleet.length > 0 && defendingFleet.length === 0) {
       attackerWins += 1;
-    } else if (
-      remainingAttackingUnitsByHitAssignmentOrder.length === 0 &&
-      remainingDefendingUnitsByHitAssignmentOrder.length > 0
-    ) {
+    } else if (attackingFleet.length === 0 && defendingFleet.length > 0) {
       defenderWins += 1;
     }
   }
