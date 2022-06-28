@@ -55,8 +55,12 @@ export class Fleet {
     }
   }
 
-  get length() {
+  get numUnitsRemaining() {
     return this._hitAssignmentOrder.length;
+  }
+
+  get hasUnitsRemaining() {
+    return this.numUnitsRemaining > 0;
   }
 
   /**
