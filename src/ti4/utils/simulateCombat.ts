@@ -33,16 +33,16 @@ export const simulateCombat: (
     // generate anti-fighter barrage hits for both sides
     const attackerAntiFighterBarrageHits = attackingFleet.simulateAntiFighterBarrage();
     const defenderAntiFighterBarrageHits = defendingFleet.simulateAntiFighterBarrage();
-    attackingFleet.hit(defenderAntiFighterBarrageHits, UnitEnum.FIGHTER);
-    defendingFleet.hit(attackerAntiFighterBarrageHits, UnitEnum.FIGHTER);
+    attackingFleet.assignHits(defenderAntiFighterBarrageHits, UnitEnum.FIGHTER);
+    defendingFleet.assignHits(attackerAntiFighterBarrageHits, UnitEnum.FIGHTER);
 
     // while there are units left on both sides
     while (attackingFleet.length > 0 && defendingFleet.length > 0) {
       // generate hits for both sides
       const remainingAttackingUnitHits = attackingFleet.simulateCombat();
       const remainingDefendingUnitHits = defendingFleet.simulateCombat();
-      attackingFleet.hit(remainingDefendingUnitHits);
-      defendingFleet.hit(remainingAttackingUnitHits);
+      attackingFleet.assignHits(remainingDefendingUnitHits);
+      defendingFleet.assignHits(remainingAttackingUnitHits);
     }
 
     if (attackingFleet.length > 0 && defendingFleet.length === 0) {
