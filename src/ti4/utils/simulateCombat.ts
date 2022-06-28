@@ -37,7 +37,10 @@ export const simulateCombat: (
     defendingFleet.assignHits(attackerAntiFighterBarrageHits, UnitEnum.FIGHTER);
 
     // while there are units left on both sides
-    while (attackingFleet.length > 0 && defendingFleet.length > 0) {
+    while (
+      attackingFleet.hasUnitsRemaining &&
+      defendingFleet.hasUnitsRemaining
+    ) {
       // generate hits for both sides
       const remainingAttackingUnitHits = attackingFleet.simulateCombat();
       const remainingDefendingUnitHits = defendingFleet.simulateCombat();
@@ -45,9 +48,12 @@ export const simulateCombat: (
       defendingFleet.assignHits(remainingAttackingUnitHits);
     }
 
-    if (attackingFleet.length > 0 && defendingFleet.length === 0) {
+    if (attackingFleet.hasUnitsRemaining && !defendingFleet.hasUnitsRemaining) {
       attackerWins += 1;
-    } else if (attackingFleet.length === 0 && defendingFleet.length > 0) {
+    } else if (
+      !attackingFleet.hasUnitsRemaining &&
+      defendingFleet.hasUnitsRemaining
+    ) {
       defenderWins += 1;
     }
   }
