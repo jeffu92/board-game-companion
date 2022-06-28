@@ -75,7 +75,7 @@ export class Fleet {
    * @param numHits - Number of hits to apply.
    * @param unitEnum - Type of unit to apply hits to. Other types of units won't be hit.
    */
-  hit(numHits: number = 1, unitEnum?: UnitEnum) {
+  assignHits(numHits: number = 1, unitEnum?: UnitEnum) {
     let hitAssignmentOrder = this._hitAssignmentOrder;
     if (unitEnum) {
       // if hits should be assigned to a particular unit type, filter out other units
