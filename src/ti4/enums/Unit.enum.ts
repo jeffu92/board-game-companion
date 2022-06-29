@@ -1,8 +1,9 @@
 export enum UnitEnum {
   WARSUN = "War Sun",
-  DREADNAUGHT = "Dreadnaught",
+  DREADNOUGHT = "Dreadnought",
   CRUISER = "Cruiser",
   FIGHTER = "Fighter",
   INFANTRY = "Infantry",
   CARRIER = "Carrier",
+  DESTROYER = "Destroyer",
 }

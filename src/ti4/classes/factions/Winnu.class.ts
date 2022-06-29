@@ -3,11 +3,12 @@ import { Faction } from "./Faction.class";
 
 const supportedUnits: Set<UnitEnum> = new Set<UnitEnum>([
   UnitEnum.WARSUN,
-  UnitEnum.DREADNAUGHT,
+  UnitEnum.DREADNOUGHT,
   UnitEnum.CRUISER,
   UnitEnum.FIGHTER,
   UnitEnum.INFANTRY,
   UnitEnum.CARRIER,
+  UnitEnum.DESTROYER,
 ]);
 
 export const Winnu: Faction = {
