@@ -1,14 +1,20 @@
-import { Button } from "@mui/material";
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Button,
+  Typography,
+} from "@mui/material";
 import { Unit } from "../../../../ti4/classes/units/Unit.class";
 import { ShipConfiguration } from "../ShipConfiguration/ShipConfiguration.component";
-import { Add } from "@mui/icons-material";
+import { Add, ExpandMore } from "@mui/icons-material";
 import "./FleetBuilderForm.component.css";
 import { UpgradeDowngradeButton } from "../UpgradeDowngradeButton/UpgradeDowngradeButton.component";
 import {
   unitMap,
   useFleetBuilder,
 } from "../../../../ti4/hooks/useFleetBuilder";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { factionMap } from "../../../../ti4/utils/factionMap";
 
 export interface FleetBuilderFormProps {
@@ -31,6 +37,11 @@ export const FleetBuilderForm = (props: FleetBuilderFormProps) => {
     sustainDamage,
     repairDamage,
   } = useFleetBuilder(supportedUnits, onFleetChange);
+  const [isTechSectionExpanded, setIsTechSectionExpanded] = useState(false);
+  const [
+    isActionCardsSectionExpanded,
+    setIsActionCardSectionExpanded,
+  ] = useState(false);
 
   const renderFleetBuilderButtons = useCallback(() => {
     return Array.from(supportedUnits.keys()).map((unitEnum) => {
@@ -44,6 +55,7 @@ export const FleetBuilderForm = (props: FleetBuilderFormProps) => {
               onClick={addThisUnit}
               startIcon={<Add />}
               variant="outlined"
+              size="small"
             >
               {prototypes.get(unitEnum)?.name ?? ""}
             </Button>
@@ -68,6 +80,7 @@ export const FleetBuilderForm = (props: FleetBuilderFormProps) => {
             onClick={addThisUnit}
             startIcon={<Add />}
             variant="outlined"
+            size="small"
           >
             {prototypes.get(unitEnum)?.name ?? ""}
           </Button>
@@ -94,12 +107,52 @@ export const FleetBuilderForm = (props: FleetBuilderFormProps) => {
     });
   }, [fleet, removeUnit, repairDamage, sustainDamage]);
 
+  const handleTechSectionExpansionChange = useCallback(
+    (_: React.SyntheticEvent<Element, Event>, expanded: boolean) => {
+      setIsTechSectionExpanded(expanded);
+    },
+    []
+  );
+
+  const handleActionCardsSectionExpansionChange = useCallback(
+    (_: React.SyntheticEvent<Element, Event>, expanded: boolean) => {
+      setIsActionCardSectionExpanded(expanded);
+    },
+    []
+  );
+
   return (
-    <div>
-      <div className="fleet-builder-form__add-ship-buttons">
-        {renderFleetBuilderButtons()}
+    <div className="fleet-builder-form">
+      <div>
+        <Accordion
+          expanded={isTechSectionExpanded}
+          onChange={handleTechSectionExpansionChange}
+        >
+          <AccordionSummary expandIcon={<ExpandMore />}>
+            <Typography>Technology</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <div>Technology!</div>
+          </AccordionDetails>
+        </Accordion>
+        <Accordion
+          expanded={isActionCardsSectionExpanded}
+          onChange={handleActionCardsSectionExpansionChange}
+        >
+          <AccordionSummary expandIcon={<ExpandMore />}>
+            <Typography>Action Cards</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <div>Action Cards!</div>
+          </AccordionDetails>
+        </Accordion>
       </div>
-      {renderFleet()}
+      <div>
+        <div className="fleet-builder-form__add-ship-buttons">
+          {renderFleetBuilderButtons()}
+        </div>
+        {renderFleet()}
+      </div>
     </div>
   );
 };

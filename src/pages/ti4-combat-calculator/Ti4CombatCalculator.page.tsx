@@ -1,4 +1,4 @@
-import { Button, Paper } from "@mui/material";
+import { Paper } from "@mui/material";
 import { useCallback, useState } from "react";
 import { Faction } from "../../ti4/classes/factions/Faction.class";
 import { Unit } from "../../ti4/classes/units/Unit.class";
@@ -38,27 +38,6 @@ export const Ti4CombatCalculator = () => {
     },
     []
   );
-
-  const handleSimulateClick = useCallback(() => {
-    if (attackerFaction && defenderFaction) {
-      onSimulateCombat(
-        {
-          faction: attackerFaction,
-          units: attackerFleet,
-        },
-        {
-          faction: defenderFaction,
-          units: defenderFleet,
-        }
-      );
-    }
-  }, [
-    attackerFaction,
-    attackerFleet,
-    defenderFaction,
-    defenderFleet,
-    onSimulateCombat,
-  ]);
 
   const handleDefenderFleetChange = useCallback(
     (newFleet: Map<string, Unit>) => {
@@ -151,7 +130,6 @@ export const Ti4CombatCalculator = () => {
         className="ti4-combat-calc__attacker ti-combat-calc__participant"
         elevation={7}
       >
-        <div>Attacker</div>
         <FactionFleetBuilderForm
           onFleetChange={handleAttackerFleetChange}
           onFactionChange={handleAttackerFactionChange}
@@ -161,23 +139,16 @@ export const Ti4CombatCalculator = () => {
         className="ti4-combat-calc__defender ti-combat-calc__participant"
         elevation={7}
       >
-        <div>Defender</div>
         <FactionFleetBuilderForm
           onFleetChange={handleDefenderFleetChange}
           onFactionChange={handleDefenderFactionChange}
         />
       </Paper>
-      <Button
-        className="ti4-combat-calc__simbutton"
-        onClick={handleSimulateClick}
-      >
-        Simulate
-      </Button>
       <div className="ti4-combat-calc__results">
         <span
           style={{
             height: "40px",
-            flex: result?.attackers.winPerc ?? 1,
+            flex: result?.attackers.winPerc ?? 0,
             backgroundColor: "lightcoral",
           }}
         ></span>
@@ -191,7 +162,7 @@ export const Ti4CombatCalculator = () => {
         <span
           style={{
             height: "40px",
-            flex: result?.defenders.winPerc ?? 1,
+            flex: result?.defenders.winPerc ?? 0,
             backgroundColor: "lightskyblue",
           }}
         ></span>

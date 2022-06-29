@@ -49,7 +49,9 @@ export const FactionFleetBuilderForm = (
           <MenuItem value={FactionEnum.JOLNAR}>{FactionEnum.JOLNAR}</MenuItem>
         </Select>
       </FormControl>
-      <FleetBuilderForm faction={faction} onFleetChange={onFleetChange} />
+      {faction && (
+        <FleetBuilderForm faction={faction} onFleetChange={onFleetChange} />
+      )}
     </div>
   );
 };

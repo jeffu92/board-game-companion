@@ -27,6 +27,7 @@ export const UpgradeDowngradeButton = (props: UpgradeDowngradeButtonProps) => {
           variant="outlined"
           color="error"
           startIcon={<ArrowDownward />}
+          size="small"
         >
           Downgrade
         </Button>
@@ -36,6 +37,7 @@ export const UpgradeDowngradeButton = (props: UpgradeDowngradeButtonProps) => {
           variant="outlined"
           color="success"
           startIcon={<ArrowUpward />}
+          size="small"
         >
           Upgrade
         </Button>
