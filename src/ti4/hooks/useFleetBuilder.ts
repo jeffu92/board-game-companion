@@ -7,6 +7,7 @@ import { Unit } from "../classes/units/Unit.class";
 import { WarSun } from "../classes/units/WarSun.class";
 import { UnitEnum } from "../enums/Unit.enum";
 import { v4 as uuidv4 } from "uuid";
+import { Carrier } from "../classes/units/Carrier.class";
 import { Destroyer } from "../classes/units/Destroyer.class";
 
 export const unitMap: Map<UnitEnum, Unit> = new Map([
@@ -18,6 +19,7 @@ export const unitMap: Map<UnitEnum, Unit> = new Map([
   [UnitEnum.CRUISER, new Cruiser({ isUpgraded: false })],
   [UnitEnum.FIGHTER, new Fighter({ isUpgraded: false })],
   [UnitEnum.INFANTRY, new Infantry({ isUpgraded: false })],
+  [UnitEnum.CARRIER, new Carrier({ isUpgraded: false })],
   [UnitEnum.DESTROYER, new Destroyer({ isUpgraded: false })],
 ]);
 

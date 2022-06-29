@@ -7,6 +7,7 @@ const supportedUnits: Set<UnitEnum> = new Set<UnitEnum>([
   UnitEnum.CRUISER,
   UnitEnum.FIGHTER,
   UnitEnum.INFANTRY,
+  UnitEnum.CARRIER,
   UnitEnum.DESTROYER,
 ]);
 
