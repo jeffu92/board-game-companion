@@ -1,3 +1,4 @@
+import { Faction } from "../classes/factions/Faction.class";
 import { Fleet } from "../classes/Fleet.class";
 import { Unit } from "../classes/units/Unit.class";
 import { UnitEnum } from "../enums/Unit.enum";
@@ -13,9 +14,15 @@ export interface CombatStats {
 }
 
 export const simulateCombat: (
-  attackingUnits: Map<string, Unit>,
-  defendingUnits: Map<string, Unit>
-) => CombatStats = (attackingUnits, defendingUnits) => {
+  attacker: {
+    faction: Faction;
+    units: Map<string, Unit>;
+  },
+  defender: {
+    faction: Faction;
+    units: Map<string, Unit>;
+  }
+) => CombatStats = (attacker, defender) => {
   const numSimulations = 10000;
 
   let attackerWins = 0;
@@ -27,8 +34,8 @@ export const simulateCombat: (
     simulationRound < numSimulations;
     simulationRound++
   ) {
-    const attackingFleet = new Fleet({ units: attackingUnits });
-    const defendingFleet = new Fleet({ units: defendingUnits });
+    const attackingFleet = new Fleet(attacker);
+    const defendingFleet = new Fleet(defender);
 
     // generate anti-fighter barrage hits for both sides
     const attackerAntiFighterBarrageHits = attackingFleet.simulateAntiFighterBarrage();
@@ -42,8 +49,22 @@ export const simulateCombat: (
       defendingFleet.hasUnitsRemaining
     ) {
       // generate hits for both sides
-      const remainingAttackingUnitHits = attackingFleet.simulateCombat();
-      const remainingDefendingUnitHits = defendingFleet.simulateCombat();
+      const attackingUnitRollModifiers: Array<(unit: Unit) => number> = [];
+      if (attacker.faction.getCombatRollModifier) {
+        attackingUnitRollModifiers.push(attacker.faction.getCombatRollModifier);
+      }
+      const remainingAttackingUnitHits = attackingFleet.simulateCombat({
+        rollModifiers: attackingUnitRollModifiers,
+      });
+
+      const defendingUnitRollModifiers: Array<(unit: Unit) => number> = [];
+      if (defender.faction.getCombatRollModifier) {
+        defendingUnitRollModifiers.push(defender.faction.getCombatRollModifier);
+      }
+      const remainingDefendingUnitHits = defendingFleet.simulateCombat({
+        rollModifiers: defendingUnitRollModifiers,
+      });
+
       attackingFleet.assignHits(remainingDefendingUnitHits);
       defendingFleet.assignHits(remainingAttackingUnitHits);
     }

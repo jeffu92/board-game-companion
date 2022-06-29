@@ -157,13 +157,21 @@ export class Unit {
    * Simulates this unit participating in combat.
    * @returns The number of hits this unit produced.
    */
-  simulateCombat() {
+  simulateCombat(
+    options: {
+      rollModifiers?: Array<(unit: Unit) => number>;
+    } = {}
+  ) {
+    // if an override is not provided for rolling combat die, use baseline
+    const { rollModifiers } = options;
+
     let numHits = 0;
     for (let i = 0; i < this.numAttacks; i++) {
-      if (randomIntFromInterval(1, 10) >= this.combat) {
+      if (this.rollCombatDie(rollModifiers) >= this.combat) {
         numHits += 1;
       }
     }
+
     return numHits;
   }
 
@@ -171,7 +179,7 @@ export class Unit {
     let numHits = 0;
     if (this.antiFighterBarrage) {
       for (let i = 0; i < this.antiFighterBarrage.numAttacks; i++) {
-        if (randomIntFromInterval(1, 10) >= this.antiFighterBarrage.combat) {
+        if (this.rollCombatDie() >= this.antiFighterBarrage.combat) {
           numHits += 1;
         }
       }
@@ -183,5 +191,12 @@ export class Unit {
     if (this.isEligibleForSustainDamage) {
       this._hasSustainedDamage = true;
     }
+  }
+
+  private rollCombatDie(rollModifiers?: Array<(unit: Unit) => number>) {
+    return (
+      randomIntFromInterval(1, 10) +
+      (rollModifiers?.reduce((prev, curr) => prev + curr(this), 0) ?? 0)
+    );
   }
 }
