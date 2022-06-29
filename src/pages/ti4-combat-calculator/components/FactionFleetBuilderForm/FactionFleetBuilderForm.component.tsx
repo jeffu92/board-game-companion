@@ -13,19 +13,24 @@ import { Unit } from "../../../../ti4/classes/units/Unit.class";
 
 export interface FactionFleetBuilderFormProps {
   onFleetChange: (newFleet: Map<string, Unit>) => void;
+  onFactionChange: (newFaction: string) => void;
 }
 
 export const FactionFleetBuilderForm = (
   props: FactionFleetBuilderFormProps
 ) => {
-  const { onFleetChange } = props;
+  const { onFleetChange, onFactionChange } = props;
 
   const [faction, setFaction] = useState<string>("");
 
-  const handleFactionChange = useCallback((event: SelectChangeEvent) => {
-    const newFaction = event.target.value;
-    setFaction(newFaction);
-  }, []);
+  const handleFactionChange = useCallback(
+    (event: SelectChangeEvent) => {
+      const newFaction = event.target.value;
+      setFaction(newFaction);
+      onFactionChange(newFaction);
+    },
+    [onFactionChange]
+  );
 
   return (
     <div className="faction-fleet-builder-form">
@@ -37,10 +42,11 @@ export const FactionFleetBuilderForm = (
           label="Faction"
           onChange={handleFactionChange}
         >
-          <MenuItem value={FactionEnum.WINNU}>The Winnu</MenuItem>
+          <MenuItem value={FactionEnum.WINNU}>{FactionEnum.WINNU}</MenuItem>
           <MenuItem value={FactionEnum.NAAZROKHA}>
-            The Naaz-Rokha Alliance
+            {FactionEnum.NAAZROKHA}
           </MenuItem>
+          <MenuItem value={FactionEnum.JOLNAR}>{FactionEnum.JOLNAR}</MenuItem>
         </Select>
       </FormControl>
       <FleetBuilderForm faction={faction} onFleetChange={onFleetChange} />
