@@ -1,5 +1,5 @@
 import { ArrowDownward, ArrowUpward } from "@mui/icons-material";
-import { Button } from "@mui/material";
+import { IconButton } from "@mui/material";
 import { useCallback } from "react";
 
 export interface UpgradeDowngradeButtonProps {
@@ -22,25 +22,13 @@ export const UpgradeDowngradeButton = (props: UpgradeDowngradeButtonProps) => {
   return (
     <>
       {isUpgraded ? (
-        <Button
-          onClick={handleDowngradeClick}
-          variant="outlined"
-          color="error"
-          startIcon={<ArrowDownward />}
-          size="small"
-        >
-          Downgrade
-        </Button>
+        <IconButton onClick={handleDowngradeClick} color="error">
+          <ArrowDownward />
+        </IconButton>
       ) : (
-        <Button
-          onClick={handleUpgradeClick}
-          variant="outlined"
-          color="success"
-          startIcon={<ArrowUpward />}
-          size="small"
-        >
-          Upgrade
-        </Button>
+        <IconButton onClick={handleUpgradeClick} color="success">
+          <ArrowUpward />
+        </IconButton>
       )}
     </>
   );

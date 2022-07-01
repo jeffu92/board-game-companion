@@ -1,6 +1,7 @@
-import { HighlightOff } from "@mui/icons-material";
+import { FavoriteBorder, HeartBrokenOutlined } from "@mui/icons-material";
 import { Button, IconButton } from "@mui/material";
 import { useCallback } from "react";
+import "./ShipConfiguration.component.css";
 
 interface ShipConfigurationProps {
   id: string;
@@ -33,18 +34,21 @@ export const ShipConfiguration = (props: ShipConfigurationProps) => {
   const handleRemoveClick = useCallback(() => onRemove(id), [id, onRemove]);
 
   return (
-    <div>
-      <IconButton onClick={handleRemoveClick}>
-        <HighlightOff></HighlightOff>
-      </IconButton>
-      <span>{name}</span>
+    <div className="ship-configuration">
+      <Button onClick={handleRemoveClick}>{name}</Button>
       {canSustainDamage ? (
         hasSustainedDamage ? (
-          <Button onClick={handleRepairDamageClick}>Repair Damage</Button>
+          <IconButton color="error" onClick={handleRepairDamageClick}>
+            <HeartBrokenOutlined />
+          </IconButton>
         ) : (
-          <Button onClick={handleSustainDamageClick}>Sustain Damage</Button>
+          <IconButton color="success" onClick={handleSustainDamageClick}>
+            <FavoriteBorder />
+          </IconButton>
         )
-      ) : null}
+      ) : (
+        <span />
+      )}
     </div>
   );
 };

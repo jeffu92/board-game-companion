@@ -31,3 +31,8 @@
     grid-area: results;
     display: flex;
 }
+
+.ti4-combat-calc__simbutton {
+    grid-area: results;
+    display: flex;
+}

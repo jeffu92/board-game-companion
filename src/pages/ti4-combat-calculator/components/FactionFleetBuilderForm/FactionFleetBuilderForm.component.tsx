@@ -12,6 +12,7 @@ import { FleetBuilderForm } from "./components/FleetBuilderForm/FleetBuilderForm
 import { Unit } from "../../../../ti4/classes/units/Unit.class";
 
 export interface FactionFleetBuilderFormProps {
+  shouldUnitsBeOnRight: boolean;
   onFleetChange: (newFleet: Map<string, Unit>) => void;
   onFactionChange: (newFaction: string) => void;
 }
@@ -19,7 +20,7 @@ export interface FactionFleetBuilderFormProps {
 export const FactionFleetBuilderForm = (
   props: FactionFleetBuilderFormProps
 ) => {
-  const { onFleetChange, onFactionChange } = props;
+  const { shouldUnitsBeOnRight, onFleetChange, onFactionChange } = props;
 
   const [faction, setFaction] = useState<string>("");
 
@@ -54,6 +55,7 @@ export const FactionFleetBuilderForm = (
       {faction && (
         <FleetBuilderForm
           className="faction-fleet-builder-form__fleet-builder-form"
+          shouldUnitsBeOnRight={shouldUnitsBeOnRight}
           faction={faction}
           onFleetChange={onFleetChange}
         />
