@@ -123,8 +123,25 @@ export const Ti4CombatCalculator = () => {
 
   return (
     <div className="ti4-combat-calc">
-      <div className="ti4-combat-calc__header">
-        Twilight Imperium Combat Calculator
+      <div className="ti4-combat-calc__results">
+        <span
+          style={{
+            flex: result?.attackers.winPerc ?? 0,
+            backgroundColor: "lightcoral",
+          }}
+        ></span>
+        <span
+          style={{
+            flex: result?.tiePerc ?? 1,
+            backgroundColor: "lightgray",
+          }}
+        ></span>
+        <span
+          style={{
+            flex: result?.defenders.winPerc ?? 0,
+            backgroundColor: "lightskyblue",
+          }}
+        ></span>
       </div>
       <Paper
         className="ti4-combat-calc__attacker ti-combat-calc__participant"
@@ -144,29 +161,6 @@ export const Ti4CombatCalculator = () => {
           onFactionChange={handleDefenderFactionChange}
         />
       </Paper>
-      <div className="ti4-combat-calc__results">
-        <span
-          style={{
-            height: "40px",
-            flex: result?.attackers.winPerc ?? 0,
-            backgroundColor: "lightcoral",
-          }}
-        ></span>
-        <span
-          style={{
-            height: "40px",
-            flex: result?.tiePerc ?? 1,
-            backgroundColor: "lightgray",
-          }}
-        ></span>
-        <span
-          style={{
-            height: "40px",
-            flex: result?.defenders.winPerc ?? 0,
-            backgroundColor: "lightskyblue",
-          }}
-        ></span>
-      </div>
     </div>
   );
 };

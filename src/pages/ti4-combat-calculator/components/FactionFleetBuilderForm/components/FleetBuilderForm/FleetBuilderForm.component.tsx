@@ -5,25 +5,27 @@ import {
   Button,
   Typography,
 } from "@mui/material";
-import { Unit } from "../../../../ti4/classes/units/Unit.class";
-import { ShipConfiguration } from "../ShipConfiguration/ShipConfiguration.component";
+import { Unit } from "../../../../../../ti4/classes/units/Unit.class";
+import { ShipConfiguration } from "../../../ShipConfiguration/ShipConfiguration.component";
 import { Add, ExpandMore } from "@mui/icons-material";
 import "./FleetBuilderForm.component.css";
-import { UpgradeDowngradeButton } from "../UpgradeDowngradeButton/UpgradeDowngradeButton.component";
+import { UpgradeDowngradeButton } from "../../../UpgradeDowngradeButton/UpgradeDowngradeButton.component";
 import {
   unitMap,
   useFleetBuilder,
-} from "../../../../ti4/hooks/useFleetBuilder";
+} from "../../../../../../ti4/hooks/useFleetBuilder";
 import { useCallback, useMemo, useState } from "react";
-import { factionMap } from "../../../../ti4/utils/factionMap";
+import { factionMap } from "../../../../../../ti4/utils/factionMap";
+import classNames from "classnames";
 
 export interface FleetBuilderFormProps {
+  className?: string;
   faction: string;
   onFleetChange: (newFleet: Map<string, Unit>) => void;
 }
 
 export const FleetBuilderForm = (props: FleetBuilderFormProps) => {
-  const { faction, onFleetChange } = props;
+  const { className, faction, onFleetChange } = props;
   const supportedUnits = useMemo(
     () => factionMap.get(faction)?.getUnits() ?? new Set([]),
     [faction]
@@ -121,8 +123,13 @@ export const FleetBuilderForm = (props: FleetBuilderFormProps) => {
     []
   );
 
+  const fleetBuilderFormClassnames = useMemo(
+    () => classNames(["fleet-builder-form", className]),
+    [className]
+  );
+
   return (
-    <div className="fleet-builder-form">
+    <div className={fleetBuilderFormClassnames}>
       <div>
         <Accordion
           expanded={isTechSectionExpanded}

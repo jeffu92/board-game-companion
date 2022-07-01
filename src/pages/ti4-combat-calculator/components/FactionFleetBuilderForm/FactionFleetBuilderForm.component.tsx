@@ -8,7 +8,7 @@ import {
 import { useCallback, useState } from "react";
 import { FactionEnum } from "../../../../ti4/enums/Faction.enum";
 import "./FactionFleetBuilderForm.component.css";
-import { FleetBuilderForm } from "../FleetBuilderForm/FleetBuilderForm.component";
+import { FleetBuilderForm } from "./components/FleetBuilderForm/FleetBuilderForm.component";
 import { Unit } from "../../../../ti4/classes/units/Unit.class";
 
 export interface FactionFleetBuilderFormProps {
@@ -34,23 +34,29 @@ export const FactionFleetBuilderForm = (
 
   return (
     <div className="faction-fleet-builder-form">
-      <FormControl>
-        <InputLabel id="faction-select-label">Faction</InputLabel>
-        <Select
-          value={faction}
-          labelId="faction-select-label"
-          label="Faction"
-          onChange={handleFactionChange}
-        >
-          <MenuItem value={FactionEnum.WINNU}>{FactionEnum.WINNU}</MenuItem>
-          <MenuItem value={FactionEnum.NAAZROKHA}>
-            {FactionEnum.NAAZROKHA}
-          </MenuItem>
-          <MenuItem value={FactionEnum.JOLNAR}>{FactionEnum.JOLNAR}</MenuItem>
-        </Select>
-      </FormControl>
+      <div className="faction-fleet-builder-form__faction-select-container">
+        <FormControl fullWidth>
+          <InputLabel id="faction-select-label">Faction</InputLabel>
+          <Select
+            value={faction}
+            labelId="faction-select-label"
+            label="Faction"
+            onChange={handleFactionChange}
+          >
+            <MenuItem value={FactionEnum.WINNU}>{FactionEnum.WINNU}</MenuItem>
+            <MenuItem value={FactionEnum.NAAZROKHA}>
+              {FactionEnum.NAAZROKHA}
+            </MenuItem>
+            <MenuItem value={FactionEnum.JOLNAR}>{FactionEnum.JOLNAR}</MenuItem>
+          </Select>
+        </FormControl>
+      </div>
       {faction && (
-        <FleetBuilderForm faction={faction} onFleetChange={onFleetChange} />
+        <FleetBuilderForm
+          className="faction-fleet-builder-form__fleet-builder-form"
+          faction={faction}
+          onFleetChange={onFleetChange}
+        />
       )}
     </div>
   );
