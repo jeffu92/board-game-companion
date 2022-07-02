@@ -1,165 +1,157 @@
-import { Button, Paper } from "@mui/material";
+import { Paper } from "@mui/material";
 import { useCallback, useState } from "react";
-import { Faction } from "../../ti4/classes/factions/Faction.class";
-import { Unit } from "../../ti4/classes/units/Unit.class";
-import { factionMap } from "../../ti4/utils/factionMap";
+import { useFleetBuilder } from "../../ti4/hooks/useFleetBuilder";
 import { CombatStats, simulateCombat } from "../../ti4/utils/simulateCombat";
 import { FactionFleetBuilderForm } from "./components/FactionFleetBuilderForm/FactionFleetBuilderForm.component";
+import { FleetBuilderContext } from "./contexts/FactionBuilderContext.context";
 import "./Ti4CombatCalculator.page.css";
 
 export const Ti4CombatCalculator = () => {
-  const [defenderFleet, setDefenderFleet] = useState<Map<string, Unit>>(
-    new Map()
-  );
-  const [attackerFleet, setAttackerFleet] = useState<Map<string, Unit>>(
-    new Map()
-  );
-  const [defenderFaction, setDefenderFaction] = useState<Faction | undefined>(
-    undefined
-  );
-  const [attackerFaction, setAttackerFaction] = useState<Faction | undefined>(
-    undefined
-  );
+  const {
+    faction: attackerFaction,
+    setFaction: attackerSetFaction,
+    spaceZone: attackerSpaceZone,
+    planetZones: attackerPlanetZones,
+    unitIsUpgraded: attackerUnitIsUpgraded,
+    selectedZone: attackerSelectedZone,
+    setSelectedZone: attackerSetSelectedZone,
+    addUnit: attackerAddUnit,
+    removeUnit: attackerRemoveUnit,
+    changeGrade: attackerChangeGrade,
+    sustainDamage: attackerSustainDamage,
+    repairDamage: attackerRepairDamage,
+    addPlanet: attackerAddPlanet,
+    removePlanet: attackerRemovePlanet,
+  } = useFleetBuilder();
+  const {
+    faction: defenderFaction,
+    setFaction: defenderSetFaction,
+    spaceZone: defenderSpaceZone,
+    planetZones: defenderPlanetZones,
+    unitIsUpgraded: defenderUnitIsUpgraded,
+    selectedZone: defenderSelectedZone,
+    setSelectedZone: defenderSetSelectedZone,
+    addUnit: defenderAddUnit,
+    removeUnit: defenderRemoveUnit,
+    changeGrade: defenderChangeGrade,
+    sustainDamage: defenderSustainDamage,
+    repairDamage: defenderRepairDamage,
+    addPlanet: defenderAddPlanet,
+    removePlanet: defenderRemovePlanet,
+  } = useFleetBuilder();
   const [result, setResult] = useState<CombatStats | null>(null);
 
-  const onSimulateCombat = useCallback(
-    (
-      attacker: {
-        faction: Faction;
-        units: Map<string, Unit>;
-      },
-      defender: {
-        faction: Faction;
-        units: Map<string, Unit>;
-      }
-    ) => {
-      const result = simulateCombat(attacker, defender);
-      setResult(result);
-    },
-    []
-  );
+  const handleSimulateCombatClick = useCallback(
+    (id: string) => {
+      if (attackerFaction && defenderFaction) {
+        const attackerUnits = attackerPlanetZones.get(id) ?? attackerSpaceZone;
+        const defenderUnits = defenderPlanetZones.get(id) ?? defenderSpaceZone;
 
-  const handleSimulateCombatClick = useCallback(() => {
-    if (attackerFaction && defenderFaction) {
-      onSimulateCombat(
-        {
-          faction: attackerFaction,
-          units: attackerFleet,
-        },
-        {
-          faction: defenderFaction,
-          units: defenderFleet,
+        if (attackerUnits && defenderUnits) {
+          const result = simulateCombat(
+            {
+              faction: attackerFaction,
+              units: attackerUnits,
+            },
+            {
+              faction: defenderFaction,
+              units: defenderUnits,
+            }
+          );
+          setResult(result);
         }
-      );
-    }
-  }, [
-    attackerFaction,
-    attackerFleet,
-    defenderFaction,
-    defenderFleet,
-    onSimulateCombat,
-  ]);
-
-  const handleDefenderFleetChange = useCallback(
-    (newFleet: Map<string, Unit>) => {
-      setDefenderFleet(newFleet);
-      setResult(null);
+      }
     },
-    []
+    [
+      attackerFaction,
+      attackerPlanetZones,
+      attackerSpaceZone,
+      defenderFaction,
+      defenderPlanetZones,
+      defenderSpaceZone,
+    ]
   );
-
-  const handleAttackerFleetChange = useCallback(
-    (newFleet: Map<string, Unit>) => {
-      setAttackerFleet(newFleet);
-      setResult(null);
-    },
-    []
-  );
-
-  const handleDefenderFactionChange = useCallback((newFaction: string) => {
-    const newDefenderFaction = factionMap.get(newFaction);
-    if (newDefenderFaction) {
-      setDefenderFaction(newDefenderFaction);
-      setResult(null);
-    }
-  }, []);
-
-  const handleAttackerFactionChange = useCallback((newFaction: string) => {
-    const newAttackerFaction = factionMap.get(newFaction);
-    if (newAttackerFaction) {
-      setAttackerFaction(newAttackerFaction);
-      setResult(null);
-    }
-  }, []);
 
   const offColorValue = 190;
   const borderValue = offColorValue - 50;
 
   return (
     <div className="ti4-combat-calc">
-      {result ? (
-        <div
-          className="ti4-combat-calc__results"
-          onClick={handleSimulateCombatClick}
-        >
-          <span
-            style={{
-              flex: result?.attackers.winPerc ?? 0,
-              backgroundColor: `rgb(255, ${offColorValue}, ${offColorValue})`,
-              borderRight: `1px rgb(${borderValue}, ${borderValue}, ${borderValue}) solid`,
-            }}
-          ></span>
-          <span
-            style={{
-              flex: result?.tiePerc ?? 1,
-              backgroundColor: `rgb(${offColorValue}, ${offColorValue}, ${offColorValue})`,
-            }}
-          ></span>
-          <span
-            style={{
-              flex: result?.defenders.winPerc ?? 0,
-              backgroundColor: `rgb(${offColorValue}, ${offColorValue}, 255)`,
-              borderLeft: `1px rgb(${borderValue}, ${borderValue}, ${borderValue}) solid`,
-            }}
-          ></span>
-        </div>
-      ) : (
-        <Button
-          variant="contained"
-          color="success"
-          disabled={
-            !attackerFaction ||
-            !defenderFaction ||
-            attackerFleet.size === 0 ||
-            defenderFleet.size === 0
-          }
-          className="ti4-combat-calc__simbutton"
-          onClick={handleSimulateCombatClick}
-        >
-          Simulate!
-        </Button>
-      )}
+      <div className="ti4-combat-calc__results">
+        <span
+          style={{
+            flex: result?.attackers.winPerc ?? 0,
+            backgroundColor: `rgb(255, ${offColorValue}, ${offColorValue})`,
+            borderRight: `1px rgb(${borderValue}, ${borderValue}, ${borderValue}) solid`,
+          }}
+        ></span>
+        <span
+          style={{
+            flex: result?.tiePerc ?? 1,
+            backgroundColor: `rgb(${offColorValue}, ${offColorValue}, ${offColorValue})`,
+          }}
+        ></span>
+        <span
+          style={{
+            flex: result?.defenders.winPerc ?? 0,
+            backgroundColor: `rgb(${offColorValue}, ${offColorValue}, 255)`,
+            borderLeft: `1px rgb(${borderValue}, ${borderValue}, ${borderValue}) solid`,
+          }}
+        ></span>
+      </div>
       <Paper
         style={{ backgroundColor: "rgb(255, 245, 245)" }}
         className="ti4-combat-calc__attacker ti-combat-calc__participant"
         elevation={3}
       >
-        <FactionFleetBuilderForm
-          shouldUnitsBeOnRight={true}
-          onFleetChange={handleAttackerFleetChange}
-          onFactionChange={handleAttackerFactionChange}
-        />
+        <FleetBuilderContext.Provider
+          value={{
+            faction: attackerFaction,
+            setFaction: attackerSetFaction,
+            spaceZone: attackerSpaceZone,
+            planetZones: attackerPlanetZones,
+            unitIsUpgraded: attackerUnitIsUpgraded,
+            selectedZone: attackerSelectedZone,
+            setSelectedZone: attackerSetSelectedZone,
+            addUnit: attackerAddUnit,
+            removeUnit: attackerRemoveUnit,
+            changeGrade: attackerChangeGrade,
+            sustainDamage: attackerSustainDamage,
+            repairDamage: attackerRepairDamage,
+            addPlanet: attackerAddPlanet,
+            removePlanet: attackerRemovePlanet,
+            simulateCombatInZone: handleSimulateCombatClick,
+          }}
+        >
+          <FactionFleetBuilderForm shouldZonesBeOnRight={true} />
+        </FleetBuilderContext.Provider>
       </Paper>
       <Paper
         style={{ backgroundColor: "rgb(245, 245, 255)" }}
         className="ti4-combat-calc__defender ti-combat-calc__participant"
         elevation={3}
       >
-        <FactionFleetBuilderForm
-          shouldUnitsBeOnRight={false}
-          onFleetChange={handleDefenderFleetChange}
-          onFactionChange={handleDefenderFactionChange}
-        />
+        <FleetBuilderContext.Provider
+          value={{
+            faction: defenderFaction,
+            setFaction: defenderSetFaction,
+            spaceZone: defenderSpaceZone,
+            planetZones: defenderPlanetZones,
+            unitIsUpgraded: defenderUnitIsUpgraded,
+            selectedZone: defenderSelectedZone,
+            setSelectedZone: defenderSetSelectedZone,
+            addUnit: defenderAddUnit,
+            removeUnit: defenderRemoveUnit,
+            changeGrade: defenderChangeGrade,
+            sustainDamage: defenderSustainDamage,
+            repairDamage: defenderRepairDamage,
+            addPlanet: defenderAddPlanet,
+            removePlanet: defenderRemovePlanet,
+            simulateCombatInZone: handleSimulateCombatClick,
+          }}
+        >
+          <FactionFleetBuilderForm shouldZonesBeOnRight={false} />
+        </FleetBuilderContext.Provider>
       </Paper>
     </div>
   );

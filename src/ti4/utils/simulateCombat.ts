@@ -1,3 +1,4 @@
+import { Immutable } from "immer";
 import { Faction } from "../classes/factions/Faction.class";
 import { Fleet } from "../classes/Fleet.class";
 import { Unit } from "../classes/units/Unit.class";
@@ -15,12 +16,12 @@ export interface CombatStats {
 
 export const simulateCombat: (
   attacker: {
-    faction: Faction;
-    units: Map<string, Unit>;
+    faction: Immutable<Faction>;
+    units: Immutable<Map<string, Unit>>;
   },
   defender: {
-    faction: Faction;
-    units: Map<string, Unit>;
+    faction: Immutable<Faction>;
+    units: Immutable<Map<string, Unit>>;
   }
 ) => CombatStats = (attacker, defender) => {
   const numSimulations = 10000;

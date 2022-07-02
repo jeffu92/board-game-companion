@@ -1,0 +1,18 @@
+.add-units-panel {
+    display: flex;
+    flex-direction: column;
+    border: 1px lightgray solid;
+    padding: 10px;
+}
+
+.add-units-panel__container {
+    display: grid;
+    grid-template-columns: 1fr 40px;
+    grid-template-rows: auto;
+    align-items: center;
+    column-gap: 5px;
+}
+
+.add-units-panel .add-units-panel__title {
+    margin-bottom: 10px;
+}

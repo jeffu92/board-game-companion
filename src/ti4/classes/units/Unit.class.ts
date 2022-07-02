@@ -1,3 +1,4 @@
+import { immerable, Immutable } from "immer";
 import { AbilityEnum } from "../../enums/Ability.enum";
 import { UnitEnum } from "../../enums/Unit.enum";
 import { randomIntFromInterval } from "../../utils/randomIntFromInterval";
@@ -21,6 +22,8 @@ export interface Ability {
 }
 
 export class Unit {
+  [immerable] = true;
+
   private _unitEnum: UnitEnum;
   private _base: UnitProperties;
   private _upgrade?: UnitProperties | undefined;
@@ -44,7 +47,7 @@ export class Unit {
     this._hasSustainedDamage = options.hasSustainedDamage;
   }
 
-  static copy(unit: Unit) {
+  static copy(unit: Immutable<Unit>) {
     return new Unit({
       unitEnum: unit.unitEnum,
       base: unit.base,
@@ -111,10 +114,6 @@ export class Unit {
 
   get hasSustainedDamage() {
     return this._hasSustainedDamage;
-  }
-
-  setHasSustainedDamage(value: boolean) {
-    this._hasSustainedDamage = value;
   }
 
   get bombardment() {
@@ -191,6 +190,10 @@ export class Unit {
     if (this.isEligibleForSustainDamage) {
       this._hasSustainedDamage = true;
     }
+  }
+
+  repairDamage() {
+    this._hasSustainedDamage = false;
   }
 
   private rollCombatDie(rollModifiers?: Array<(unit: Unit) => number>) {

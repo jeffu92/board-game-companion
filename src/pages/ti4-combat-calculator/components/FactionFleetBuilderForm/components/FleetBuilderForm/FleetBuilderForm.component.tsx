@@ -2,112 +2,29 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
-  Button,
-  Paper,
   Typography,
 } from "@mui/material";
-import { Unit } from "../../../../../../ti4/classes/units/Unit.class";
-import { ShipConfiguration } from "../../../ShipConfiguration/ShipConfiguration.component";
 import { ExpandMore } from "@mui/icons-material";
 import "./FleetBuilderForm.component.css";
-import { UpgradeDowngradeButton } from "../../../UpgradeDowngradeButton/UpgradeDowngradeButton.component";
-import {
-  unitMap,
-  useFleetBuilder,
-} from "../../../../../../ti4/hooks/useFleetBuilder";
-import { useCallback, useMemo, useState } from "react";
-import { factionMap } from "../../../../../../ti4/utils/factionMap";
+import { useCallback, useContext, useMemo, useState } from "react";
 import classNames from "classnames";
+import { AddUnitsPanel } from "./components/AddUnitsPanel/AddUnitsPanel.component";
+import { UnitZoneArea } from "./components/UnitZoneArea/UnitZoneArea.component";
+import { FleetBuilderContext } from "../../../../contexts/FactionBuilderContext.context";
 
 export interface FleetBuilderFormProps {
   className?: string;
-  shouldUnitsBeOnRight: boolean;
-  faction: string;
-  onFleetChange: (newFleet: Map<string, Unit>) => void;
+  shouldZonesBeOnRight: boolean;
 }
 
 export const FleetBuilderForm = (props: FleetBuilderFormProps) => {
-  const { className, shouldUnitsBeOnRight, faction, onFleetChange } = props;
-  const supportedUnits = useMemo(
-    () => factionMap.get(faction)?.getUnits() ?? new Set([]),
-    [faction]
-  );
-  const {
-    fleet,
-    prototypes,
-    addUnit,
-    removeUnit,
-    changeGrade,
-    sustainDamage,
-    repairDamage,
-  } = useFleetBuilder(supportedUnits, onFleetChange);
+  const { className, shouldZonesBeOnRight } = props;
+  const context = useContext(FleetBuilderContext);
   const [isTechSectionExpanded, setIsTechSectionExpanded] = useState(false);
   const [
     isActionCardsSectionExpanded,
     setIsActionCardSectionExpanded,
   ] = useState(false);
-
-  const renderFleetBuilderButtons = useCallback(() => {
-    return (
-      <Paper className="fleet-builder-form__add-unit-buttons" elevation={1}>
-        <Typography className="fleet-builder-form__title">Units</Typography>
-        {Array.from(supportedUnits.keys()).map((unitEnum) => {
-          const unit = unitMap.get(unitEnum);
-          const addThisUnit = () => addUnit(unitEnum);
-          if (unit?.upgrade) {
-            return (
-              <div className="fleet-builder-form__add-unit-button-container">
-                <Button key={`${unitEnum}-addbutton`} onClick={addThisUnit}>
-                  {prototypes.get(unitEnum)?.name ?? ""}
-                </Button>
-                <UpgradeDowngradeButton
-                  key={`${unitEnum}-upgradebutton`}
-                  isUpgraded={prototypes.get(unitEnum)?.isUpgraded ?? false}
-                  onUpgradeClick={() =>
-                    changeGrade({ unitEnum, shouldUpgrade: true })
-                  }
-                  onDowngradeClick={() =>
-                    changeGrade({ unitEnum, shouldUpgrade: false })
-                  }
-                />
-              </div>
-            );
-          }
-
-          return (
-            <div className="fleet-builder-form__add-unit-button-container">
-              <Button key={`${unitEnum}-addbutton`} onClick={addThisUnit}>
-                {prototypes.get(unitEnum)?.name ?? ""}
-              </Button>
-              <span key={`${unitEnum}-upgrade-placeholder`}></span>
-            </div>
-          );
-        })}
-      </Paper>
-    );
-  }, [addUnit, changeGrade, prototypes, supportedUnits]);
-
-  const renderFleet = useCallback(() => {
-    return (
-      <Paper className="fleet-builder-form__units" elevation={1}>
-        <Typography className="fleet-builder-form__title">Fleet</Typography>
-        {Array.from(fleet.entries()).map(([id, unit]) => {
-          return (
-            <ShipConfiguration
-              key={id}
-              id={id}
-              name={unit.name}
-              canSustainDamage={unit.canSustainDamage}
-              hasSustainedDamage={unit.hasSustainedDamage}
-              onSustainDamage={sustainDamage}
-              onRepairSustainedDamage={repairDamage}
-              onRemove={removeUnit}
-            />
-          );
-        })}
-      </Paper>
-    );
-  }, [fleet, removeUnit, repairDamage, sustainDamage]);
 
   const handleTechSectionExpansionChange = useCallback(
     (_: React.SyntheticEvent<Element, Event>, expanded: boolean) => {
@@ -128,9 +45,13 @@ export const FleetBuilderForm = (props: FleetBuilderFormProps) => {
     [className]
   );
 
+  if (!context || !context.faction) {
+    return null;
+  }
+
   return (
     <div className={fleetBuilderFormClassnames}>
-      {!shouldUnitsBeOnRight && renderFleet()}
+      {!shouldZonesBeOnRight && <UnitZoneArea />}
       <div className="fleet-builder-form__options">
         <div>
           <Accordion
@@ -156,9 +77,9 @@ export const FleetBuilderForm = (props: FleetBuilderFormProps) => {
             </AccordionDetails>
           </Accordion>
         </div>
-        {renderFleetBuilderButtons()}
+        <AddUnitsPanel />
       </div>
-      {shouldUnitsBeOnRight && renderFleet()}
+      {shouldZonesBeOnRight && <UnitZoneArea />}
     </div>
   );
 };

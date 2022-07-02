@@ -1,3 +1,4 @@
+import { FactionEnum } from "../../enums/Faction.enum";
 import { UnitEnum } from "../../enums/Unit.enum";
 import { Faction } from "./Faction.class";
 
@@ -12,5 +13,6 @@ const supportedUnits: Set<UnitEnum> = new Set<UnitEnum>([
 ]);
 
 export const Winnu: Faction = {
+  factionEnum: FactionEnum.WINNU,
   getUnits: () => supportedUnits,
 };

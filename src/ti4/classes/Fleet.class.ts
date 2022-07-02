@@ -1,6 +1,6 @@
 import { UnitEnum } from "../enums/Unit.enum";
 import { Unit } from "./units/Unit.class";
-import { v4 as uuidv4 } from "uuid";
+import { Immutable } from "immer";
 
 /**
  * Sorts an array of units in ascending order of combat rating.
@@ -44,7 +44,7 @@ export class Fleet {
   private _units: Map<string, Unit> = new Map<string, Unit>();
   private _hitAssignmentOrder: string[] = [];
 
-  constructor(options?: { units: Map<string, Unit> }) {
+  constructor(options?: { units: Immutable<Map<string, Unit>> }) {
     const units = options?.units;
     if (units) {
       // deep copy
@@ -61,17 +61,6 @@ export class Fleet {
 
   get hasUnitsRemaining() {
     return this.numUnitsRemaining > 0;
-  }
-
-  /**
-   * Adds a unit to the fleet.
-   * @param unit - Unit to add.
-   */
-  add(unit: Unit) {
-    const unitCopy = Unit.copy(unit);
-    const unitId = uuidv4();
-    this._units.set(unitId, unitCopy);
-    this._hitAssignmentOrder = getHitAssignmentOrder(this._units);
   }
 
   /**

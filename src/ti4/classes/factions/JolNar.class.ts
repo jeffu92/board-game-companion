@@ -1,3 +1,4 @@
+import { FactionEnum } from "../../enums/Faction.enum";
 import { UnitEnum } from "../../enums/Unit.enum";
 import { Faction } from "./Faction.class";
 
@@ -12,6 +13,7 @@ const supportedUnits: Set<UnitEnum> = new Set<UnitEnum>([
 ]);
 
 export const JolNar: Faction = {
+  factionEnum: FactionEnum.JOLNAR,
   getUnits: () => supportedUnits,
   getCombatRollModifier: () => -1,
 };

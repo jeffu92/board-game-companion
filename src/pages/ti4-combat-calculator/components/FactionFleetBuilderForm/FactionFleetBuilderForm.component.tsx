@@ -5,33 +5,36 @@ import {
   Select,
   SelectChangeEvent,
 } from "@mui/material";
-import { useCallback, useState } from "react";
-import { FactionEnum } from "../../../../ti4/enums/Faction.enum";
+import { useCallback, useContext } from "react";
 import "./FactionFleetBuilderForm.component.css";
 import { FleetBuilderForm } from "./components/FleetBuilderForm/FleetBuilderForm.component";
-import { Unit } from "../../../../ti4/classes/units/Unit.class";
+import { factionMap } from "../../../../ti4/utils/factionMap";
+import { FleetBuilderContext } from "../../contexts/FactionBuilderContext.context";
 
 export interface FactionFleetBuilderFormProps {
-  shouldUnitsBeOnRight: boolean;
-  onFleetChange: (newFleet: Map<string, Unit>) => void;
-  onFactionChange: (newFaction: string) => void;
+  shouldZonesBeOnRight: boolean;
 }
 
 export const FactionFleetBuilderForm = (
   props: FactionFleetBuilderFormProps
 ) => {
-  const { shouldUnitsBeOnRight, onFleetChange, onFactionChange } = props;
+  const { shouldZonesBeOnRight } = props;
 
-  const [faction, setFaction] = useState<string>("");
+  const context = useContext(FleetBuilderContext);
 
   const handleFactionChange = useCallback(
     (event: SelectChangeEvent) => {
-      const newFaction = event.target.value;
-      setFaction(newFaction);
-      onFactionChange(newFaction);
+      const newFaction = factionMap.get(event.target.value);
+      if (newFaction) {
+        context?.setFaction(newFaction);
+      }
     },
-    [onFactionChange]
+    [context]
   );
+
+  if (!context) {
+    return null;
+  }
 
   return (
     <div className="faction-fleet-builder-form">
@@ -39,25 +42,25 @@ export const FactionFleetBuilderForm = (
         <FormControl fullWidth>
           <InputLabel id="faction-select-label">Faction</InputLabel>
           <Select
-            value={faction}
+            value={context.faction?.factionEnum ?? ""}
             labelId="faction-select-label"
             label="Faction"
             onChange={handleFactionChange}
           >
-            <MenuItem value={FactionEnum.WINNU}>{FactionEnum.WINNU}</MenuItem>
-            <MenuItem value={FactionEnum.NAAZROKHA}>
-              {FactionEnum.NAAZROKHA}
-            </MenuItem>
-            <MenuItem value={FactionEnum.JOLNAR}>{FactionEnum.JOLNAR}</MenuItem>
+            {Array.from(factionMap.keys()).map((factionName: string) => {
+              return (
+                <MenuItem key={factionName} value={factionName}>
+                  {factionName}
+                </MenuItem>
+              );
+            })}
           </Select>
         </FormControl>
       </div>
-      {faction && (
+      {context.faction && (
         <FleetBuilderForm
           className="faction-fleet-builder-form__fleet-builder-form"
-          shouldUnitsBeOnRight={shouldUnitsBeOnRight}
-          faction={faction}
-          onFleetChange={onFleetChange}
+          shouldZonesBeOnRight={shouldZonesBeOnRight}
         />
       )}
     </div>

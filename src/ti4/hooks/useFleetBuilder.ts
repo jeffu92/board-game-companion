@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 import { Cruiser } from "../classes/units/Cruiser.class";
 import { Dreadnought } from "../classes/units/Dreadnought.class";
 import { Fighter } from "../classes/units/Fighter.class";
@@ -9,8 +9,11 @@ import { UnitEnum } from "../enums/Unit.enum";
 import { v4 as uuidv4 } from "uuid";
 import { Carrier } from "../classes/units/Carrier.class";
 import { Destroyer } from "../classes/units/Destroyer.class";
+import { useImmer } from "use-immer";
+import { Immutable } from "immer";
+import { Faction } from "../classes/factions/Faction.class";
 
-export const unitMap: Map<UnitEnum, Unit> = new Map([
+export const unitMap: Immutable<Map<UnitEnum, Unit>> = new Map([
   [UnitEnum.WARSUN, new WarSun({ hasSustainedDamage: false })],
   [
     UnitEnum.DREADNOUGHT,
@@ -23,12 +26,16 @@ export const unitMap: Map<UnitEnum, Unit> = new Map([
   [UnitEnum.DESTROYER, new Destroyer({ isUpgraded: false })],
 ]);
 
-export const useFleetBuilder: (
-  supportedUnits: Set<UnitEnum>,
-  onFleetChange: (newFleet: Map<string, Unit>) => void
-) => {
-  fleet: Map<string, Unit>;
-  prototypes: Map<UnitEnum, Unit>;
+export const SPACE_ZONE_ID = "space";
+
+export const useFleetBuilder: () => {
+  faction: Immutable<Faction> | null;
+  setFaction: (faction: Faction | null) => void;
+  spaceZone: Immutable<Map<string, Unit>>;
+  planetZones: Immutable<Map<string, Map<string, Unit>>>;
+  unitIsUpgraded: Immutable<Map<UnitEnum, boolean>>;
+  selectedZone: string;
+  setSelectedZone: (id: string) => void;
   addUnit: (unit: UnitEnum) => void;
   removeUnit: (id: string) => void;
   changeGrade: (options: {
@@ -37,105 +44,138 @@ export const useFleetBuilder: (
   }) => void;
   sustainDamage: (id: string) => void;
   repairDamage: (id: string) => void;
-} = (supportedUnits, onFleetChange) => {
-  const [fleet, setFleet] = useState<Map<string, Unit>>(new Map());
-  const prototypes = useMemo<Map<UnitEnum, Unit>>(
-    () =>
-      new Map(
-        Array.from(unitMap.entries())
-          .filter(([unitEnum]) => {
-            return supportedUnits.has(unitEnum);
-          })
-          .map(([unitEnum, unit]) => {
-            return [unitEnum, Unit.copy(unit)];
-          })
-      ),
-    [supportedUnits]
+  addPlanet: () => void;
+  removePlanet: (id: string) => void;
+} = () => {
+  const [faction, setFaction] = useImmer<Immutable<Faction> | null>(null);
+  const [unitIsUpgraded, setUnitIsUpgraded] = useImmer<
+    Immutable<Map<UnitEnum, boolean>>
+  >(new Map());
+  const [spaceZone, setSpaceZone] = useImmer<Immutable<Map<string, Unit>>>(
+    new Map()
   );
+  const [planetZones, setPlanetZones] = useImmer<
+    Immutable<Map<string, Map<string, Unit>>>
+  >(new Map());
+  const [selectedZone, setSelectedZone] = useState<string>(SPACE_ZONE_ID);
 
   const addUnit = useCallback(
     (unit: UnitEnum) => {
-      setFleet((currentFleet) => {
-        const newFleet = new Map<string, Unit>(currentFleet);
-
-        const unitToAdd = prototypes.get(unit);
-        if (unitToAdd) {
-          newFleet.set(uuidv4(), Unit.copy(unitToAdd));
+      const unitId = uuidv4();
+      const unitToAdd = unitMap.get(unit);
+      if (unitToAdd) {
+        if (selectedZone === SPACE_ZONE_ID) {
+          setSpaceZone((draft) => {
+            draft.set(unitId, unitToAdd);
+          });
+        } else {
+          setPlanetZones((draft) => {
+            draft.get(selectedZone)?.set(unitId, unitToAdd);
+          });
         }
-
-        onFleetChange(newFleet);
-        return newFleet;
-      });
+      }
     },
-    [onFleetChange, prototypes]
+    [selectedZone, setPlanetZones, setSpaceZone]
   );
 
   const removeUnit = useCallback(
     (id: string) => {
-      setFleet((currentFleet) => {
-        const newFleet = new Map<string, Unit>(currentFleet);
-        newFleet.delete(id);
-
-        onFleetChange(newFleet);
-        return newFleet;
+      setSpaceZone((draft) => {
+        draft.delete(id);
+      });
+      setPlanetZones((draft) => {
+        draft.forEach((planet) => {
+          planet.delete(id);
+        });
       });
     },
-    [onFleetChange]
+    [setPlanetZones, setSpaceZone]
   );
 
   const changeGrade = useCallback(
     (options: { unitEnum: UnitEnum; shouldUpgrade: boolean }) => {
-      const { unitEnum, shouldUpgrade } = options;
-      prototypes.get(unitEnum)?.setIsUpgraded(shouldUpgrade);
-      setFleet((currentFleet) => {
-        const newFleet = new Map<string, Unit>(currentFleet);
-
-        newFleet.forEach((unit) => {
-          if (unit.unitEnum === unitEnum) {
-            unit.setIsUpgraded(shouldUpgrade);
+      setSpaceZone((draft) => {
+        draft.forEach((unit) => {
+          if (unit.unitEnum === options.unitEnum) {
+            unit.setIsUpgraded(options.shouldUpgrade);
           }
         });
-
-        onFleetChange(newFleet);
-        return newFleet;
+      });
+      setPlanetZones((draft) => {
+        draft.forEach((planet) => {
+          planet.forEach((unit) => {
+            if (unit.unitEnum === options.unitEnum) {
+              unit.setIsUpgraded(options.shouldUpgrade);
+            }
+          });
+        });
+      });
+      setUnitIsUpgraded((draft) => {
+        draft.set(options.unitEnum, options.shouldUpgrade);
       });
     },
-    [onFleetChange, prototypes]
+    [setPlanetZones, setSpaceZone, setUnitIsUpgraded]
   );
 
   const sustainDamage = useCallback(
     (id: string) => {
-      setFleet((currentFleet) => {
-        const newFleet = new Map<string, Unit>(currentFleet);
-        newFleet.get(id)?.setHasSustainedDamage(true);
-
-        onFleetChange(newFleet);
-        return newFleet;
+      setSpaceZone((draft) => {
+        draft.get(id)?.sustainDamage();
+      });
+      setPlanetZones((draft) => {
+        draft.forEach((planet) => {
+          planet.get(id)?.sustainDamage();
+        });
       });
     },
-    [onFleetChange]
+    [setPlanetZones, setSpaceZone]
   );
 
   const repairDamage = useCallback(
     (id: string) => {
-      setFleet((currentFleet) => {
-        const newFleet = new Map<string, Unit>(currentFleet);
-        newFleet.get(id)?.setHasSustainedDamage(false);
-
-        onFleetChange(newFleet);
-        return newFleet;
+      setSpaceZone((draft) => {
+        draft.get(id)?.repairDamage();
+      });
+      setPlanetZones((draft) => {
+        draft.forEach((planet) => {
+          planet.get(id)?.repairDamage();
+        });
       });
     },
-    [onFleetChange]
+    [setPlanetZones, setSpaceZone]
+  );
+
+  const addPlanet = useCallback(() => {
+    const planetId = uuidv4();
+    setPlanetZones((draft) => {
+      draft.set(planetId, new Map<string, Unit>());
+    });
+    setSelectedZone(planetId);
+  }, [setPlanetZones]);
+
+  const removePlanet = useCallback(
+    (id: string) => {
+      setPlanetZones((draft) => {
+        draft.delete(id);
+      });
+    },
+    [setPlanetZones]
   );
 
   return {
-    fleet,
-    prototypes,
+    faction,
+    setFaction,
+    spaceZone,
+    planetZones,
+    unitIsUpgraded,
+    selectedZone,
+    setSelectedZone,
     addUnit,
     removeUnit,
     changeGrade,
     sustainDamage,
     repairDamage,
+    addPlanet,
+    removePlanet,
   };
 };

@@ -1,0 +1,14 @@
+.unit-zone {
+    display: flex;
+    flex-direction: column;
+    border: 1px lightgray solid;
+    padding: 10px;
+}
+
+.unit-zone .unit-zone__title-container {
+    display: grid;
+    grid-template-columns: 40px 1fr 40px;
+    grid-template-rows: auto;
+    grid-auto-flow: column;
+    margin-bottom: 10px;
+}

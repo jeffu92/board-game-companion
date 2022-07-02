@@ -1,6 +1,7 @@
 import { FavoriteBorder, HeartBrokenOutlined } from "@mui/icons-material";
 import { Button, IconButton } from "@mui/material";
-import { useCallback } from "react";
+import { useCallback, useContext } from "react";
+import { FleetBuilderContext } from "../../../../../../../../../../contexts/FactionBuilderContext.context";
 import "./ShipConfiguration.component.css";
 
 interface ShipConfigurationProps {
@@ -8,30 +9,28 @@ interface ShipConfigurationProps {
   name: string;
   canSustainDamage: boolean;
   hasSustainedDamage: boolean;
-  onSustainDamage: (id: string) => void;
-  onRepairSustainedDamage: (id: string) => void;
-  onRemove: (id: string) => void;
 }
 
 export const ShipConfiguration = (props: ShipConfigurationProps) => {
-  const {
-    id,
-    name,
-    canSustainDamage,
-    hasSustainedDamage,
-    onSustainDamage,
-    onRepairSustainedDamage,
-    onRemove,
-  } = props;
-  const handleSustainDamageClick = useCallback(() => onSustainDamage(id), [
-    id,
-    onSustainDamage,
-  ]);
-  const handleRepairDamageClick = useCallback(
-    () => onRepairSustainedDamage(id),
-    [id, onRepairSustainedDamage]
+  const { id, name, canSustainDamage, hasSustainedDamage } = props;
+  const context = useContext(FleetBuilderContext);
+
+  const handleSustainDamageClick = useCallback(
+    () => context?.sustainDamage(id),
+    [context, id]
   );
-  const handleRemoveClick = useCallback(() => onRemove(id), [id, onRemove]);
+  const handleRepairDamageClick = useCallback(() => context?.repairDamage(id), [
+    context,
+    id,
+  ]);
+  const handleRemoveClick = useCallback(() => context?.removeUnit(id), [
+    context,
+    id,
+  ]);
+
+  if (!context) {
+    return null;
+  }
 
   return (
     <div className="ship-configuration">
