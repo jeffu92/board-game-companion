@@ -20,11 +20,21 @@ export interface FleetBuilderFormProps {
 export const FleetBuilderForm = (props: FleetBuilderFormProps) => {
   const { className, shouldZonesBeOnRight } = props;
   const context = useContext(FleetBuilderContext);
+  const [isFactionSectionExpanded, setIsFactionSectionExpanded] = useState(
+    false
+  );
   const [isTechSectionExpanded, setIsTechSectionExpanded] = useState(false);
   const [
     isActionCardsSectionExpanded,
     setIsActionCardSectionExpanded,
   ] = useState(false);
+
+  const handleFactionSectionExpansionChange = useCallback(
+    (_: React.SyntheticEvent<Element, Event>, expanded: boolean) => {
+      setIsFactionSectionExpanded(expanded);
+    },
+    []
+  );
 
   const handleTechSectionExpansionChange = useCallback(
     (_: React.SyntheticEvent<Element, Event>, expanded: boolean) => {
@@ -54,6 +64,17 @@ export const FleetBuilderForm = (props: FleetBuilderFormProps) => {
       {!shouldZonesBeOnRight && <UnitZoneArea />}
       <div className="fleet-builder-form__options">
         <div>
+          <Accordion
+            expanded={isFactionSectionExpanded}
+            onChange={handleFactionSectionExpansionChange}
+          >
+            <AccordionSummary expandIcon={<ExpandMore />}>
+              <Typography>Faction</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <div>Faction!</div>
+            </AccordionDetails>
+          </Accordion>
           <Accordion
             expanded={isTechSectionExpanded}
             onChange={handleTechSectionExpansionChange}
