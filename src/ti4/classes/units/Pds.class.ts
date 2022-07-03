@@ -1,32 +1,34 @@
 import { UnitEnum } from "../../enums/Unit.enum";
 import { Unit } from "./Unit.class";
 
-export class Fighter extends Unit {
+export class Pds extends Unit {
   constructor(options: { isUpgraded: boolean }) {
     const { isUpgraded = false } = options;
 
     super({
-      unitEnum: UnitEnum.FIGHTER,
+      unitEnum: UnitEnum.PDS,
       base: {
-        name: "Fighter 1",
+        name: "PDS 1",
         space: {
-          combat: {
+          spaceCannon: {
             numRolls: 1,
-            hitOn: 9,
+            hitOn: 6,
           },
         },
+        providesPlanetaryShield: true,
       },
       upgrade: {
-        name: "Fighter 2",
+        name: "PDS 2",
         space: {
-          combat: {
+          spaceCannon: {
             numRolls: 1,
-            hitOn: 8,
+            hitOn: 5,
           },
         },
+        providesPlanetaryShield: true,
       },
       isUpgraded,
-      productionLimit: 1000,
+      productionLimit: 6,
     });
   }
 }

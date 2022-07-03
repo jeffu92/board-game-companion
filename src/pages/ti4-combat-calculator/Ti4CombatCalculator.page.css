@@ -1,38 +1,38 @@
 .ti4-combat-calc {
-    --ti4-combat-calc__padding: 20px;
+  --ti4-combat-calc__padding: 20px;
 
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 40px 1fr;
-    grid-template-areas: 
-        "results results"
-        "attacker defender";
-    row-gap: var(--ti4-combat-calc__padding);
-    column-gap: var(--ti4-combat-calc__padding);
-    height: calc(100vh - (var(--ti4-combat-calc__padding) * 2));
-    width: calc(100vw - (var(--ti4-combat-calc__padding) * 2));
-    padding: var(--ti4-combat-calc__padding);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 40px 1fr;
+  grid-template-areas:
+    "results results"
+    "player1 player2";
+  row-gap: var(--ti4-combat-calc__padding);
+  column-gap: var(--ti4-combat-calc__padding);
+  height: calc(100vh - (var(--ti4-combat-calc__padding) * 2));
+  width: calc(100vw - (var(--ti4-combat-calc__padding) * 2));
+  padding: var(--ti4-combat-calc__padding);
 }
 
-.ti4-combat-calc__attacker {
-    grid-area: attacker;
+.ti4-combat-calc__player1 {
+  grid-area: player1;
 }
 
-.ti4-combat-calc__defender {
-    grid-area: defender;
+.ti4-combat-calc__player2 {
+  grid-area: player2;
 }
 
 .ti-combat-calc__participant {
-    border: 1px gray solid;
-    overflow-y: hidden;
+  border: 1px gray solid;
+  overflow-y: hidden;
 }
 
 .ti4-combat-calc__results {
-    grid-area: results;
-    display: flex;
+  grid-area: results;
+  display: flex;
 }
 
 .ti4-combat-calc__simbutton {
-    grid-area: results;
-    display: flex;
+  grid-area: results;
+  display: flex;
 }

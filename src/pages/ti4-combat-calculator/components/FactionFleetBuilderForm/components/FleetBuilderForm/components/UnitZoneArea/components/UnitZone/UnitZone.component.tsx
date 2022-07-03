@@ -54,8 +54,8 @@ export const UnitZone = (props: UnitZoneProps) => {
               key={id}
               id={id}
               name={unit.name}
-              canSustainDamage={unit.canSustainDamage}
-              hasSustainedDamage={unit.hasSustainedDamage}
+              canSustainDamage={unit.canSustainDamage ?? false}
+              hasSustainedDamage={unit.hasSustainedDamage ?? false}
             />
           );
         })

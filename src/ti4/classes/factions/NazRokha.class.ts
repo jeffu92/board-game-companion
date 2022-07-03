@@ -10,6 +10,7 @@ const supportedUnits: Set<UnitEnum> = new Set<UnitEnum>([
   UnitEnum.INFANTRY,
   UnitEnum.CARRIER,
   UnitEnum.DESTROYER,
+  UnitEnum.PDS,
 ]);
 
 export const NazRokha: Faction = {

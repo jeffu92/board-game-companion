@@ -12,6 +12,7 @@ import { Destroyer } from "../classes/units/Destroyer.class";
 import { useImmer } from "use-immer";
 import { Immutable } from "immer";
 import { Faction } from "../classes/factions/Faction.class";
+import { Pds } from "../classes/units/Pds.class";
 
 export const unitMap: Immutable<Map<UnitEnum, Unit>> = new Map([
   [UnitEnum.WARSUN, new WarSun({ hasSustainedDamage: false })],
@@ -24,6 +25,7 @@ export const unitMap: Immutable<Map<UnitEnum, Unit>> = new Map([
   [UnitEnum.INFANTRY, new Infantry({ isUpgraded: false })],
   [UnitEnum.CARRIER, new Carrier({ isUpgraded: false })],
   [UnitEnum.DESTROYER, new Destroyer({ isUpgraded: false })],
+  [UnitEnum.PDS, new Pds({ isUpgraded: false })],
 ]);
 
 export const SPACE_ZONE_ID = "space";

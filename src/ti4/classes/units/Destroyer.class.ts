@@ -1,35 +1,32 @@
-import { AbilityEnum } from "../../enums/Ability.enum";
 import { UnitEnum } from "../../enums/Unit.enum";
 import { Unit, UnitProperties } from "./Unit.class";
 
 export class Destroyer extends Unit {
   static baseDestroyer: UnitProperties = {
     name: "Destroyer 1",
-    cost: 1,
-    combat: 9,
-    numAttacks: 1,
-    move: 2,
-    capacity: 0,
-    canSustainDamage: false,
-    antiFighterBarrage: {
-      abilityEnum: AbilityEnum.ANTI_FIGHTER_BARRAGE,
-      numAttacks: 2,
-      combat: 9,
+    space: {
+      combat: {
+        numRolls: 1,
+        hitOn: 9,
+      },
+      antiFighterBarrage: {
+        numRolls: 2,
+        hitOn: 9,
+      },
     },
   };
 
   static upgradedDestroyer: UnitProperties = {
     name: "Destroyer 2",
-    cost: 1,
-    combat: 8,
-    numAttacks: 1,
-    move: 2,
-    capacity: 0,
-    canSustainDamage: false,
-    antiFighterBarrage: {
-      abilityEnum: AbilityEnum.ANTI_FIGHTER_BARRAGE,
-      numAttacks: 3,
-      combat: 6,
+    space: {
+      combat: {
+        numRolls: 1,
+        hitOn: 8,
+      },
+      antiFighterBarrage: {
+        numRolls: 3,
+        hitOn: 6,
+      },
     },
   };
 
@@ -42,7 +39,6 @@ export class Destroyer extends Unit {
       upgrade: Destroyer.upgradedDestroyer,
       isUpgraded,
       productionLimit: 8,
-      hasSustainedDamage: false,
     });
   }
 }

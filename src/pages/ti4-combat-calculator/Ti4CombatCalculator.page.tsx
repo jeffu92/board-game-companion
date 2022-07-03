@@ -8,67 +8,65 @@ import "./Ti4CombatCalculator.page.css";
 
 export const Ti4CombatCalculator = () => {
   const {
-    faction: attackerFaction,
-    setFaction: attackerSetFaction,
-    spaceZone: attackerSpaceZone,
-    planetZones: attackerPlanetZones,
-    unitIsUpgraded: attackerUnitIsUpgraded,
-    selectedZone: attackerSelectedZone,
-    setSelectedZone: attackerSetSelectedZone,
-    addUnit: attackerAddUnit,
-    removeUnit: attackerRemoveUnit,
-    changeGrade: attackerChangeGrade,
-    sustainDamage: attackerSustainDamage,
-    repairDamage: attackerRepairDamage,
-    addPlanet: attackerAddPlanet,
-    removePlanet: attackerRemovePlanet,
+    faction: player1Faction,
+    setFaction: player1SetFaction,
+    spaceZone: player1SpaceZone,
+    planetZones: player1PlanetZones,
+    unitIsUpgraded: player1UnitIsUpgraded,
+    selectedZone: player1SelectedZone,
+    setSelectedZone: player1SetSelectedZone,
+    addUnit: player1AddUnit,
+    removeUnit: player1RemoveUnit,
+    changeGrade: player1ChangeGrade,
+    sustainDamage: player1SustainDamage,
+    repairDamage: player1RepairDamage,
+    addPlanet: player1AddPlanet,
+    removePlanet: player1RemovePlanet,
   } = useFleetBuilder();
   const {
-    faction: defenderFaction,
-    setFaction: defenderSetFaction,
-    spaceZone: defenderSpaceZone,
-    planetZones: defenderPlanetZones,
-    unitIsUpgraded: defenderUnitIsUpgraded,
-    selectedZone: defenderSelectedZone,
-    setSelectedZone: defenderSetSelectedZone,
-    addUnit: defenderAddUnit,
-    removeUnit: defenderRemoveUnit,
-    changeGrade: defenderChangeGrade,
-    sustainDamage: defenderSustainDamage,
-    repairDamage: defenderRepairDamage,
-    addPlanet: defenderAddPlanet,
-    removePlanet: defenderRemovePlanet,
+    faction: player2Faction,
+    setFaction: player2SetFaction,
+    spaceZone: player2SpaceZone,
+    planetZones: player2PlanetZones,
+    unitIsUpgraded: player2UnitIsUpgraded,
+    selectedZone: player2SelectedZone,
+    setSelectedZone: player2SetSelectedZone,
+    addUnit: player2AddUnit,
+    removeUnit: player2RemoveUnit,
+    changeGrade: player2ChangeGrade,
+    sustainDamage: player2SustainDamage,
+    repairDamage: player2RepairDamage,
+    addPlanet: player2AddPlanet,
+    removePlanet: player2RemovePlanet,
   } = useFleetBuilder();
   const [result, setResult] = useState<CombatStats | null>(null);
 
   const handleSimulateCombatClick = useCallback(
-    (id: string) => {
-      if (attackerFaction && defenderFaction) {
-        const attackerUnits = attackerPlanetZones.get(id) ?? attackerSpaceZone;
-        const defenderUnits = defenderPlanetZones.get(id) ?? defenderSpaceZone;
-
-        if (attackerUnits && defenderUnits) {
-          const result = simulateCombat(
-            {
-              faction: attackerFaction,
-              units: attackerUnits,
-            },
-            {
-              faction: defenderFaction,
-              units: defenderUnits,
-            }
-          );
-          setResult(result);
-        }
+    (planetId?: string) => {
+      if (player1Faction && player2Faction) {
+        const result = simulateCombat(
+          {
+            faction: player1Faction,
+            space: player1SpaceZone,
+            planets: player1PlanetZones,
+          },
+          {
+            faction: player2Faction,
+            space: player2SpaceZone,
+            planets: player2PlanetZones,
+          },
+          planetId
+        );
+        setResult(result);
       }
     },
     [
-      attackerFaction,
-      attackerPlanetZones,
-      attackerSpaceZone,
-      defenderFaction,
-      defenderPlanetZones,
-      defenderSpaceZone,
+      player1Faction,
+      player1PlanetZones,
+      player1SpaceZone,
+      player2Faction,
+      player2PlanetZones,
+      player2SpaceZone,
     ]
   );
 
@@ -80,7 +78,7 @@ export const Ti4CombatCalculator = () => {
       <div className="ti4-combat-calc__results">
         <span
           style={{
-            flex: result?.attackers.winPerc ?? 0,
+            flex: result?.player1.winPerc ?? 0,
             backgroundColor: `rgb(255, ${offColorValue}, ${offColorValue})`,
             borderRight: `1px rgb(${borderValue}, ${borderValue}, ${borderValue}) solid`,
           }}
@@ -93,7 +91,7 @@ export const Ti4CombatCalculator = () => {
         ></span>
         <span
           style={{
-            flex: result?.defenders.winPerc ?? 0,
+            flex: result?.player2.winPerc ?? 0,
             backgroundColor: `rgb(${offColorValue}, ${offColorValue}, 255)`,
             borderLeft: `1px rgb(${borderValue}, ${borderValue}, ${borderValue}) solid`,
           }}
@@ -101,25 +99,25 @@ export const Ti4CombatCalculator = () => {
       </div>
       <Paper
         style={{ backgroundColor: "rgb(255, 245, 245)" }}
-        className="ti4-combat-calc__attacker ti-combat-calc__participant"
+        className="ti4-combat-calc__player1 ti-combat-calc__participant"
         elevation={3}
       >
         <FleetBuilderContext.Provider
           value={{
-            faction: attackerFaction,
-            setFaction: attackerSetFaction,
-            spaceZone: attackerSpaceZone,
-            planetZones: attackerPlanetZones,
-            unitIsUpgraded: attackerUnitIsUpgraded,
-            selectedZone: attackerSelectedZone,
-            setSelectedZone: attackerSetSelectedZone,
-            addUnit: attackerAddUnit,
-            removeUnit: attackerRemoveUnit,
-            changeGrade: attackerChangeGrade,
-            sustainDamage: attackerSustainDamage,
-            repairDamage: attackerRepairDamage,
-            addPlanet: attackerAddPlanet,
-            removePlanet: attackerRemovePlanet,
+            faction: player1Faction,
+            setFaction: player1SetFaction,
+            spaceZone: player1SpaceZone,
+            planetZones: player1PlanetZones,
+            unitIsUpgraded: player1UnitIsUpgraded,
+            selectedZone: player1SelectedZone,
+            setSelectedZone: player1SetSelectedZone,
+            addUnit: player1AddUnit,
+            removeUnit: player1RemoveUnit,
+            changeGrade: player1ChangeGrade,
+            sustainDamage: player1SustainDamage,
+            repairDamage: player1RepairDamage,
+            addPlanet: player1AddPlanet,
+            removePlanet: player1RemovePlanet,
             simulateCombatInZone: handleSimulateCombatClick,
           }}
         >
@@ -128,25 +126,25 @@ export const Ti4CombatCalculator = () => {
       </Paper>
       <Paper
         style={{ backgroundColor: "rgb(245, 245, 255)" }}
-        className="ti4-combat-calc__defender ti-combat-calc__participant"
+        className="ti4-combat-calc__player2 ti-combat-calc__participant"
         elevation={3}
       >
         <FleetBuilderContext.Provider
           value={{
-            faction: defenderFaction,
-            setFaction: defenderSetFaction,
-            spaceZone: defenderSpaceZone,
-            planetZones: defenderPlanetZones,
-            unitIsUpgraded: defenderUnitIsUpgraded,
-            selectedZone: defenderSelectedZone,
-            setSelectedZone: defenderSetSelectedZone,
-            addUnit: defenderAddUnit,
-            removeUnit: defenderRemoveUnit,
-            changeGrade: defenderChangeGrade,
-            sustainDamage: defenderSustainDamage,
-            repairDamage: defenderRepairDamage,
-            addPlanet: defenderAddPlanet,
-            removePlanet: defenderRemovePlanet,
+            faction: player2Faction,
+            setFaction: player2SetFaction,
+            spaceZone: player2SpaceZone,
+            planetZones: player2PlanetZones,
+            unitIsUpgraded: player2UnitIsUpgraded,
+            selectedZone: player2SelectedZone,
+            setSelectedZone: player2SetSelectedZone,
+            addUnit: player2AddUnit,
+            removeUnit: player2RemoveUnit,
+            changeGrade: player2ChangeGrade,
+            sustainDamage: player2SustainDamage,
+            repairDamage: player2RepairDamage,
+            addPlanet: player2AddPlanet,
+            removePlanet: player2RemovePlanet,
             simulateCombatInZone: handleSimulateCombatClick,
           }}
         >
