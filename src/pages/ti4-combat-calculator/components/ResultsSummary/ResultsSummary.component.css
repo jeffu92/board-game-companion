@@ -1,0 +1,4 @@
+.results-summary {
+    grid-area: summary;
+    border: 1px gray solid;
+}

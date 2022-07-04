@@ -34,34 +34,6 @@
   border: 1px gray solid;
   overflow-y: hidden;
 }
-
-.ti4-combat-calc__results {
-  grid-area: results;
-  display: flex;
-  border: 1px gray solid;
-}
-
-.ti4-combat-calc__results * {
-  z-index: -1;
-}
-
-.ti4-combat-calc__results :not(:last-child) {
-  border-right: 1px gray solid;
-}
-
-.ti4-combat-calc__sub-result {
-  display: flex;
-}
-
-.ti4-combat-calc__sub-results :not(:last-child) {
-  border-right: 1px gray solid;
-}
-
-.ti4-combat-calc__summary {
-  grid-area: summary;
-  border: 1px gray solid;
-}
-
 .ti4-combat-calc__simbutton {
   grid-area: results;
   display: flex;
