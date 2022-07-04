@@ -7,4 +7,5 @@ export enum UnitEnum {
   CARRIER = "Carrier",
   DESTROYER = "Destroyer",
   PDS = "PDS",
+  JNSHYLARIM = "J.N.S. Hylarim",
 }
