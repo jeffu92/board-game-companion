@@ -8,6 +8,7 @@ export const FleetBuilderContext = createContext<
         defendingFaction: Faction;
         planet?: { name: string; id: string };
       }) => void;
+      defendingZoneId?: string | undefined;
     })
   | null
 >(null);

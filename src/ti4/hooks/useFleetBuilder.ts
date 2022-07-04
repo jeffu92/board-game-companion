@@ -48,6 +48,7 @@ export const useFleetBuilder: () => {
   repairDamage: (id: string) => void;
   addPlanet: () => void;
   removePlanet: (id: string) => void;
+  canUnitBeAddedToSelectedZone: (unit: Immutable<Unit>) => boolean;
 } = () => {
   const [faction, setFaction] = useImmer<Immutable<Faction> | null>(null);
   const [prototypes, setPrototypes] = useImmer<Immutable<Map<UnitEnum, Unit>>>(
@@ -74,6 +75,17 @@ export const useFleetBuilder: () => {
       setPrototypes(prototypes);
     },
     [setFaction, setPrototypes]
+  );
+
+  const canUnitBeAddedToSelectedZone = useCallback(
+    (unit: Immutable<Unit>) => {
+      if (selectedZone === SPACE_ZONE_ID) {
+        return unit.isShip || !!unit.requiresCapacity;
+      }
+
+      return unit.isGroundForce || unit.isStructure;
+    },
+    [selectedZone]
   );
 
   const addUnit = useCallback(
@@ -197,5 +209,6 @@ export const useFleetBuilder: () => {
     repairDamage,
     addPlanet,
     removePlanet,
+    canUnitBeAddedToSelectedZone,
   };
 };

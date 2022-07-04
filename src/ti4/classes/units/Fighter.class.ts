@@ -14,6 +14,7 @@ export class Fighter extends Unit {
             numRolls: 1,
             hitOn: 9,
           },
+          requiresCapacity: true,
         },
       },
       upgrade: {
@@ -23,6 +24,7 @@ export class Fighter extends Unit {
             numRolls: 1,
             hitOn: 8,
           },
+          requiresCapacity: true,
         },
       },
       isUpgraded,

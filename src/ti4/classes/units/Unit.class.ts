@@ -7,13 +7,14 @@ export interface UnitProperties {
   space?: {
     combat?: CombatDiceRoll;
     antiFighterBarrage?: CombatDiceRoll;
+    capacity?: number;
+    requiresCapacity?: boolean;
   };
   ground?: {
     combat?: CombatDiceRoll;
     bombardment?: CombatDiceRoll;
   };
   spaceCannon?: CombatDiceRoll;
-  capacity?: number;
   canSustainDamage?: boolean;
   providesPlanetaryShield?: boolean;
   ignoresPlanetaryShield?: boolean;
@@ -79,6 +80,12 @@ export class Unit {
       : this._base.name;
   }
 
+  get requiresCapacity() {
+    return this.isUpgraded && this._upgrade
+      ? this._upgrade.space?.requiresCapacity
+      : this._base.space?.requiresCapacity;
+  }
+
   get spaceCombat() {
     return this.isUpgraded && this._upgrade
       ? this._upgrade.space?.combat
@@ -111,8 +118,8 @@ export class Unit {
 
   get capacity() {
     return this.isUpgraded && this._upgrade
-      ? this._upgrade.capacity
-      : this._base.capacity;
+      ? this._upgrade.space?.capacity
+      : this._base.space?.capacity;
   }
 
   get canSustainDamage() {

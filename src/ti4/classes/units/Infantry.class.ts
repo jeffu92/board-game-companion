@@ -9,6 +9,9 @@ export class Infantry extends Unit {
       unitEnum: UnitEnum.INFANTRY,
       base: {
         name: "Infantry 1",
+        space: {
+          requiresCapacity: true,
+        },
         ground: {
           combat: {
             numRolls: 1,
@@ -18,6 +21,9 @@ export class Infantry extends Unit {
       },
       upgrade: {
         name: "Infantry 2",
+        space: {
+          requiresCapacity: true,
+        },
         ground: {
           combat: {
             numRolls: 1,

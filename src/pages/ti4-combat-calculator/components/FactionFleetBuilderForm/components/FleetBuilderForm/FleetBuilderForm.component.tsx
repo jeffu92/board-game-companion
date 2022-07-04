@@ -5,7 +5,7 @@ import {
   Paper,
   Typography,
 } from "@mui/material";
-import { ExpandMore } from "@mui/icons-material";
+import { ExpandMoreRounded } from "@mui/icons-material";
 import "./FleetBuilderForm.component.css";
 import { useCallback, useContext, useMemo, useState } from "react";
 import classNames from "classnames";
@@ -69,7 +69,7 @@ export const FleetBuilderForm = (props: FleetBuilderFormProps) => {
             expanded={isFactionSectionExpanded}
             onChange={handleFactionSectionExpansionChange}
           >
-            <AccordionSummary expandIcon={<ExpandMore />}>
+            <AccordionSummary expandIcon={<ExpandMoreRounded />}>
               <Typography>Faction</Typography>
             </AccordionSummary>
             <AccordionDetails>
@@ -80,7 +80,7 @@ export const FleetBuilderForm = (props: FleetBuilderFormProps) => {
             expanded={isTechSectionExpanded}
             onChange={handleTechSectionExpansionChange}
           >
-            <AccordionSummary expandIcon={<ExpandMore />}>
+            <AccordionSummary expandIcon={<ExpandMoreRounded />}>
               <Typography>Technology</Typography>
             </AccordionSummary>
             <AccordionDetails>
@@ -91,7 +91,7 @@ export const FleetBuilderForm = (props: FleetBuilderFormProps) => {
             expanded={isActionCardsSectionExpanded}
             onChange={handleActionCardsSectionExpansionChange}
           >
-            <AccordionSummary expandIcon={<ExpandMore />}>
+            <AccordionSummary expandIcon={<ExpandMoreRounded />}>
               <Typography>Action Cards</Typography>
             </AccordionSummary>
             <AccordionDetails>

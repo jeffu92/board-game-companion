@@ -1,4 +1,4 @@
-import { ExpandMore } from "@mui/icons-material";
+import { ExpandMoreRounded } from "@mui/icons-material";
 import {
   Accordion,
   AccordionDetails,
@@ -44,6 +44,7 @@ export const Ti4CombatCalculator = () => {
     repairDamage: player1RepairDamage,
     addPlanet: player1AddPlanet,
     removePlanet: player1RemovePlanet,
+    canUnitBeAddedToSelectedZone: player1CanUnitBeAddedToSelectedZone,
   } = useFleetBuilder();
   const {
     faction: player2Faction,
@@ -60,14 +61,16 @@ export const Ti4CombatCalculator = () => {
     repairDamage: player2RepairDamage,
     addPlanet: player2AddPlanet,
     removePlanet: player2RemovePlanet,
+    canUnitBeAddedToSelectedZone: player2CanUnitBeAddedToSelectedZone,
   } = useFleetBuilder();
   const [result, setResult] = useState<CombatStats | null>(null);
   const [defendingFaction, setDefendingFaction] = useState<Faction | null>(
     null
   );
-  const [defendingZoneName, setDefendingZoneName] = useState<string | null>(
-    null
-  );
+  const [defendingZoneInfo, setDefendingZoneInfo] = useState<{
+    name: string;
+    id: string;
+  } | null>(null);
 
   const handleSimulateCombatClick = useCallback(
     (options: {
@@ -91,7 +94,10 @@ export const Ti4CombatCalculator = () => {
         });
         setResult(result);
         setDefendingFaction(defendingFaction);
-        setDefendingZoneName(planet?.name ?? SPACE_ZONE_ID);
+        setDefendingZoneInfo({
+          name: planet?.name ?? SPACE_ZONE_ID,
+          id: planet?.id ?? SPACE_ZONE_ID,
+        });
       }
     },
     [
@@ -145,19 +151,19 @@ export const Ti4CombatCalculator = () => {
   }, [defendingFaction, player2Faction]);
 
   const isGroundCombat = useMemo(() => {
-    return defendingZoneName && defendingZoneName !== SPACE_ZONE_ID;
-  }, [defendingZoneName]);
+    return defendingZoneInfo?.name && defendingZoneInfo?.name !== SPACE_ZONE_ID;
+  }, [defendingZoneInfo]);
 
   const summaryTitle = useMemo(() => {
     if (
       player1Faction &&
       player2Faction &&
       defendingFaction &&
-      defendingZoneName &&
+      defendingZoneInfo &&
       result
     ) {
       const differential =
-        defendingZoneName === SPACE_ZONE_ID
+        defendingZoneInfo.name === SPACE_ZONE_ID
           ? result.player1.winSpacePerc - result.player2.winSpacePerc
           : result.player1.winGroundPerc - result.player2.winGroundPerc;
       if (differential <= 10 && differential >= -10) {
@@ -204,7 +210,7 @@ export const Ti4CombatCalculator = () => {
                 {winningFaction.factionEnum}
               </b>{" "}
               are <b>{winningDescription}</b> to <b>{outcomeDescription}</b> of{" "}
-              <b>{defendingZoneName}</b>.
+              <b>{defendingZoneInfo.name}</b>.
             </span>
           </>
         );
@@ -214,7 +220,7 @@ export const Ti4CombatCalculator = () => {
     return "Summary";
   }, [
     defendingFaction,
-    defendingZoneName,
+    defendingZoneInfo,
     player1Faction,
     player2Faction,
     result,
@@ -260,7 +266,7 @@ export const Ti4CombatCalculator = () => {
       </Paper>
       <Paper className="ti4-combat-calc__summary" elevation={3}>
         <Accordion>
-          <AccordionSummary expandIcon={<ExpandMore />}>
+          <AccordionSummary expandIcon={<ExpandMoreRounded />}>
             <Typography>{summaryTitle}</Typography>
           </AccordionSummary>
           <AccordionDetails>
@@ -310,6 +316,8 @@ export const Ti4CombatCalculator = () => {
             addPlanet: player1AddPlanet,
             removePlanet: player1RemovePlanet,
             simulateCombatInZone: handleSimulateCombatClick,
+            defendingZoneId: defendingZoneInfo?.id,
+            canUnitBeAddedToSelectedZone: player1CanUnitBeAddedToSelectedZone,
           }}
         >
           <FactionFleetBuilderForm shouldZonesBeOnRight={true} />
@@ -339,6 +347,8 @@ export const Ti4CombatCalculator = () => {
             addPlanet: player2AddPlanet,
             removePlanet: player2RemovePlanet,
             simulateCombatInZone: handleSimulateCombatClick,
+            defendingZoneId: defendingZoneInfo?.id,
+            canUnitBeAddedToSelectedZone: player2CanUnitBeAddedToSelectedZone,
           }}
         >
           <FactionFleetBuilderForm shouldZonesBeOnRight={false} />

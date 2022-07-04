@@ -23,6 +23,7 @@ export class Cruiser extends Unit {
             numRolls: 1,
             hitOn: 6,
           },
+          capacity: 1,
         },
       },
       isUpgraded,

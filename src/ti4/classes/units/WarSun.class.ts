@@ -9,6 +9,7 @@ export class WarSun extends Unit {
         hitOn: 3,
         numRolls: 3,
       },
+      capacity: 6,
     },
     ground: {
       bombardment: {
@@ -16,7 +17,6 @@ export class WarSun extends Unit {
         numRolls: 3,
       },
     },
-    capacity: 6,
     canSustainDamage: true,
     ignoresPlanetaryShield: true,
   };

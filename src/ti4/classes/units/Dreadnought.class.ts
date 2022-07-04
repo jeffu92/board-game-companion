@@ -9,6 +9,7 @@ export class Dreadnought extends Unit {
         numRolls: 1,
         hitOn: 5,
       },
+      capacity: 1,
     },
     ground: {
       bombardment: {
@@ -16,7 +17,6 @@ export class Dreadnought extends Unit {
         hitOn: 5,
       },
     },
-    capacity: 1,
     canSustainDamage: true,
   };
   static upgradeDreadnaught: UnitProperties = {
@@ -26,6 +26,7 @@ export class Dreadnought extends Unit {
         numRolls: 1,
         hitOn: 5,
       },
+      capacity: 1,
     },
     ground: {
       bombardment: {
@@ -33,7 +34,6 @@ export class Dreadnought extends Unit {
         hitOn: 5,
       },
     },
-    capacity: 1,
     canSustainDamage: true,
   };
 
