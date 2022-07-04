@@ -1,0 +1,13 @@
+.results-bar {
+    grid-area: results;
+    display: flex;
+    border: 1px gray solid;
+}
+
+.results-bar * {
+    z-index: -1;
+}
+
+.results-bar :not(:last-child) {
+    border-right: 1px gray solid;
+}
