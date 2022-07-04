@@ -32,7 +32,7 @@ export function simulateCombat(options: {
   return new Promise<CombatStats>((resolve) => {
     setTimeout(() => {
       const { player1, player2, planetId } = options;
-      const numSimulations = 100000;
+      const numSimulations = 10000;
 
       let player1WinsSpace = 0;
       let player1WinsGround = 0;
