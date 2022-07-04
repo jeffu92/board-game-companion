@@ -54,6 +54,7 @@ export const FleetBuilderForm = (props: FleetBuilderFormProps) => {
     <div className={fleetBuilderFormClassnames}>
       {!shouldZonesBeOnRight && <UnitZoneArea />}
       <div className="fleet-builder-form__options">
+        <AddUnitsPanel />
         <Paper className="fleet-builder-form__optional">
           <Accordion
             expanded={isFactionSectionExpanded}
@@ -79,7 +80,6 @@ export const FleetBuilderForm = (props: FleetBuilderFormProps) => {
           </Accordion>
           <ActionCards />
         </Paper>
-        <AddUnitsPanel />
       </div>
       {shouldZonesBeOnRight && <UnitZoneArea />}
     </div>

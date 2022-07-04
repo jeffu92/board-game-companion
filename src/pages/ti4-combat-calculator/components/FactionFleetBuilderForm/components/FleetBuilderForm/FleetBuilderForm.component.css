@@ -9,7 +9,7 @@
 .fleet-builder-form__options {
   display: grid;
   grid-template-columns: 1fr;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: min-content min-content;
   row-gap: 20px;
 }
 
