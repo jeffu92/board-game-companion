@@ -2,6 +2,12 @@ import { immerable, Immutable } from "immer";
 import { UnitEnum } from "../../enums/Unit.enum";
 import { randomIntFromInterval } from "../../utils/randomIntFromInterval";
 
+interface UnitBehaviorModifiers {
+  combat?: {
+    produceAdditionalHitsBeforeRollModifiers?: (roll: number) => number;
+  };
+}
+
 export interface UnitProperties {
   name: string;
   space?: {
@@ -18,6 +24,7 @@ export interface UnitProperties {
   canSustainDamage?: boolean;
   providesPlanetaryShield?: boolean;
   ignoresPlanetaryShield?: boolean;
+  behaviorModifiers?: UnitBehaviorModifiers;
 }
 
 export interface CombatDiceRoll {
@@ -78,6 +85,12 @@ export class Unit {
     return this.isUpgraded && this._upgrade
       ? this._upgrade.name
       : this._base.name;
+  }
+
+  get behaviorModifiers() {
+    return this.isUpgraded && this._upgrade
+      ? this._upgrade.behaviorModifiers
+      : this._base.behaviorModifiers;
   }
 
   get requiresCapacity() {
@@ -210,6 +223,10 @@ export class Unit {
     return this.simulateDiceRolls({
       diceRollStats: this.spaceCombat,
       rollModifiers: options.rollModifiers,
+      hitModifiers: {
+        produceAdditionalHitsBeforeRollModifiers: this.behaviorModifiers?.combat
+          ?.produceAdditionalHitsBeforeRollModifiers,
+      },
     });
   }
 
@@ -229,6 +246,10 @@ export class Unit {
     return this.simulateDiceRolls({
       diceRollStats: this.groundCombat,
       rollModifiers: options.rollModifiers,
+      hitModifiers: {
+        produceAdditionalHitsBeforeRollModifiers: this.behaviorModifiers?.combat
+          ?.produceAdditionalHitsBeforeRollModifiers,
+      },
     });
   }
 
@@ -275,24 +296,34 @@ export class Unit {
   private simulateDiceRolls(options: {
     diceRollStats: CombatDiceRoll;
     rollModifiers?: Array<(unit: Unit) => number> | undefined;
+    hitModifiers?:
+      | {
+          produceAdditionalHitsBeforeRollModifiers?:
+            | ((roll: number) => number)
+            | undefined;
+        }
+      | undefined;
   }) {
-    const { diceRollStats, rollModifiers = [] } = options;
+    const { diceRollStats, rollModifiers = [], hitModifiers } = options;
 
     let numHits = 0;
     for (let i = 0; i < diceRollStats.numRolls; i++) {
-      if (this.rollCombatDie(rollModifiers) >= diceRollStats.hitOn) {
+      const rollBeforeModifiers = randomIntFromInterval(1, 10);
+
+      numHits +=
+        hitModifiers?.produceAdditionalHitsBeforeRollModifiers?.(
+          rollBeforeModifiers
+        ) ?? 0;
+
+      const rollAfterModifiers =
+        rollBeforeModifiers +
+        (rollModifiers?.reduce((prev, curr) => prev + curr(this), 0) ?? 0);
+      if (rollAfterModifiers >= diceRollStats.hitOn) {
         numHits += 1;
       }
     }
 
     return numHits;
-  }
-
-  private rollCombatDie(rollModifiers?: Array<(unit: Unit) => number>) {
-    return (
-      randomIntFromInterval(1, 10) +
-      (rollModifiers?.reduce((prev, curr) => prev + curr(this), 0) ?? 0)
-    );
   }
 
   private calculateCombatRating(numAttacks: number, combat: number) {

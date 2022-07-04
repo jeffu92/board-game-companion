@@ -1,32 +1,11 @@
 import { useCallback, useMemo, useState } from "react";
-import { Cruiser } from "../classes/units/Cruiser.class";
-import { Dreadnought } from "../classes/units/Dreadnought.class";
-import { Fighter } from "../classes/units/Fighter.class";
-import { Infantry } from "../classes/units/Infantry.class";
 import { Unit } from "../classes/units/Unit.class";
-import { WarSun } from "../classes/units/WarSun.class";
 import { UnitEnum } from "../enums/Unit.enum";
 import { v4 as uuidv4 } from "uuid";
-import { Carrier } from "../classes/units/Carrier.class";
-import { Destroyer } from "../classes/units/Destroyer.class";
 import { useImmer } from "use-immer";
 import { Immutable } from "immer";
 import { Faction } from "../classes/factions/Faction.class";
-import { Pds } from "../classes/units/Pds.class";
-
-export const unitMap: Immutable<Map<UnitEnum, Unit>> = new Map([
-  [UnitEnum.WARSUN, new WarSun({ hasSustainedDamage: false })],
-  [
-    UnitEnum.DREADNOUGHT,
-    new Dreadnought({ isUpgraded: false, hasSustainedDamage: false }),
-  ],
-  [UnitEnum.CRUISER, new Cruiser({ isUpgraded: false })],
-  [UnitEnum.FIGHTER, new Fighter({ isUpgraded: false })],
-  [UnitEnum.INFANTRY, new Infantry({ isUpgraded: false })],
-  [UnitEnum.CARRIER, new Carrier({ isUpgraded: false })],
-  [UnitEnum.DESTROYER, new Destroyer({ isUpgraded: false })],
-  [UnitEnum.PDS, new Pds({ isUpgraded: false })],
-]);
+import { unitMap } from "../classes/units/unitMap";
 
 export const SPACE_ZONE_ID = "Space";
 
