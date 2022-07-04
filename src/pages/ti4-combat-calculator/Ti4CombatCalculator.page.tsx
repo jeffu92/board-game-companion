@@ -2,7 +2,9 @@ import { Box, CircularProgress, Modal, Paper } from "@mui/material";
 import classNames from "classnames";
 import { Immutable } from "immer";
 import { useCallback, useMemo, useState } from "react";
+import { actionCardMap } from "../../ti4/classes/action-cards/actionCardMap";
 import { Faction } from "../../ti4/classes/factions/Faction.class";
+import { ActionCardEnum } from "../../ti4/enums/ActionCard.enum";
 import {
   SPACE_ZONE_ID,
   useFleetBuilder,
@@ -44,6 +46,9 @@ export const Ti4CombatCalculator = () => {
     canUnitBeAddedToSelectedZone: player1CanUnitBeAddedToSelectedZone,
     remainingSpaceCapacity: player1RemainingSpaceCapacity,
     hasAtLeastOneUnit: player1HasAtLeastOneUnit,
+    actionCards: player1ActionCards,
+    addActionCard: player1AddActionCard,
+    removeActionCard: player1RemoveActionCard,
   } = useFleetBuilder();
   const {
     faction: player2Faction,
@@ -63,6 +68,9 @@ export const Ti4CombatCalculator = () => {
     canUnitBeAddedToSelectedZone: player2CanUnitBeAddedToSelectedZone,
     remainingSpaceCapacity: player2RemainingSpaceCapacity,
     hasAtLeastOneUnit: player2HasAtLeastOneUnit,
+    actionCards: player2ActionCards,
+    addActionCard: player2AddActionCard,
+    removeActionCard: player2RemoveActionCard,
   } = useFleetBuilder();
   const [isSimulating, setIsSimulating] = useState<boolean>(false);
   const [combatStats, setCombatStats] = useState<CombatStats | null>(null);
@@ -88,11 +96,13 @@ export const Ti4CombatCalculator = () => {
             faction: player1Faction,
             space: player1SpaceZone,
             planets: player1PlanetZones,
+            actionCards: player1ActionCards,
           },
           player2: {
             faction: player2Faction,
             space: player2SpaceZone,
             planets: player2PlanetZones,
+            actionCards: player2ActionCards,
           },
           planetId: planet?.id,
         });
@@ -106,13 +116,26 @@ export const Ti4CombatCalculator = () => {
       }
     },
     [
+      player1ActionCards,
       player1Faction,
       player1PlanetZones,
       player1SpaceZone,
+      player2ActionCards,
       player2Faction,
       player2PlanetZones,
       player2SpaceZone,
     ]
+  );
+
+  const areActionCardsAvailable = useCallback(
+    (actionCardEnum: ActionCardEnum) => {
+      return (
+        (player1ActionCards.get(actionCardEnum) ?? 0) +
+          (player2ActionCards.get(actionCardEnum) ?? 0) <
+        (actionCardMap.get(actionCardEnum)?.numAvailable ?? 0)
+      );
+    },
+    [player1ActionCards, player2ActionCards]
   );
 
   const shouldAllowSimulate = useMemo(() => {
@@ -253,6 +276,10 @@ export const Ti4CombatCalculator = () => {
               remainingSpaceCapacity: player1RemainingSpaceCapacity,
               hasAtLeastOneUnit: player1HasAtLeastOneUnit,
               shouldAllowSimulate,
+              actionCards: player1ActionCards,
+              addActionCard: player1AddActionCard,
+              removeActionCard: player1RemoveActionCard,
+              areActionCardsAvailable,
             }}
           >
             <FactionFleetBuilderForm shouldZonesBeOnRight={true} />
@@ -287,6 +314,10 @@ export const Ti4CombatCalculator = () => {
               remainingSpaceCapacity: player2RemainingSpaceCapacity,
               hasAtLeastOneUnit: player2HasAtLeastOneUnit,
               shouldAllowSimulate,
+              actionCards: player2ActionCards,
+              addActionCard: player2AddActionCard,
+              removeActionCard: player2RemoveActionCard,
+              areActionCardsAvailable,
             }}
           >
             <FactionFleetBuilderForm shouldZonesBeOnRight={false} />

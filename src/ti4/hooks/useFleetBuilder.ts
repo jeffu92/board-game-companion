@@ -6,6 +6,8 @@ import { useImmer } from "use-immer";
 import { Immutable } from "immer";
 import { Faction } from "../classes/factions/Faction.class";
 import { unitMap } from "../classes/units/unitMap";
+import { ActionCardEnum } from "../enums/ActionCard.enum";
+import { actionCardMap } from "../classes/action-cards/actionCardMap";
 
 export const SPACE_ZONE_ID = "Space";
 
@@ -30,6 +32,9 @@ export const useFleetBuilder: () => {
   canUnitBeAddedToSelectedZone: (unit: Immutable<Unit>) => boolean;
   remainingSpaceCapacity: number;
   hasAtLeastOneUnit: boolean;
+  actionCards: Immutable<Map<ActionCardEnum, number>>;
+  addActionCard: (actionCardEnum: ActionCardEnum) => void;
+  removeActionCard: (actionCardEnum: ActionCardEnum) => void;
 } = () => {
   const [faction, setFaction] = useImmer<Immutable<Faction> | null>(null);
   const [prototypes, setPrototypes] = useImmer<Immutable<Map<UnitEnum, Unit>>>(
@@ -42,6 +47,16 @@ export const useFleetBuilder: () => {
     Immutable<Map<string, Map<string, Unit>>>
   >(new Map());
   const [selectedZone, setSelectedZone] = useState<string>(SPACE_ZONE_ID);
+  const [actionCards, setActionCards] = useImmer<
+    Immutable<Map<ActionCardEnum, number>>
+  >(
+    new Map(
+      Array.from(actionCardMap).map(([actionCardEnum]) => {
+        return [actionCardEnum, 0];
+      })
+    )
+  );
+
   const remainingSpaceCapacity = useMemo(() => {
     let totalCapacity = 0;
     let requiredCapacity = 0;
@@ -53,6 +68,24 @@ export const useFleetBuilder: () => {
     });
     return totalCapacity - requiredCapacity;
   }, [spaceZone]);
+
+  const addActionCard = useCallback(
+    (actionCardEnum: ActionCardEnum) => {
+      setActionCards((draft) => {
+        draft.set(actionCardEnum, (draft.get(actionCardEnum) ?? 0) + 1);
+      });
+    },
+    [setActionCards]
+  );
+
+  const removeActionCard = useCallback(
+    (actionCardEnum: ActionCardEnum) => {
+      setActionCards((draft) => {
+        draft.set(actionCardEnum, (draft.get(actionCardEnum) ?? 1) - 1);
+      });
+    },
+    [setActionCards]
+  );
 
   const setFactionAndPrototypes = useCallback(
     (faction: Faction) => {
@@ -212,5 +245,8 @@ export const useFleetBuilder: () => {
     canUnitBeAddedToSelectedZone,
     remainingSpaceCapacity,
     hasAtLeastOneUnit,
+    actionCards,
+    addActionCard,
+    removeActionCard,
   };
 };
