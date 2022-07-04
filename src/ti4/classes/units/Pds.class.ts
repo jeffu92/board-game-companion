@@ -9,21 +9,17 @@ export class Pds extends Unit {
       unitEnum: UnitEnum.PDS,
       base: {
         name: "PDS 1",
-        space: {
-          spaceCannon: {
-            numRolls: 1,
-            hitOn: 6,
-          },
+        spaceCannon: {
+          numRolls: 1,
+          hitOn: 6,
         },
         providesPlanetaryShield: true,
       },
       upgrade: {
         name: "PDS 2",
-        space: {
-          spaceCannon: {
-            numRolls: 1,
-            hitOn: 5,
-          },
+        spaceCannon: {
+          numRolls: 1,
+          hitOn: 5,
         },
         providesPlanetaryShield: true,
       },
