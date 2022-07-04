@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useMemo } from "react";
 import { Button, IconButton, Paper, Typography } from "@mui/material";
 import { Unit } from "../../../../../../../../../../ti4/classes/units/Unit.class";
 import "./UnitZone.component.css";
@@ -15,20 +15,39 @@ export interface UnitZoneProps {
   id: string;
   name: string;
   units: Immutable<Map<string, Unit>>;
-  isSelected: boolean;
+  remainingCapacity?: number;
   onSimulateZone: () => void;
   onRemoveZone?: () => void;
   onSelectZone: () => void;
 }
 
 export const UnitZone = (props: UnitZoneProps) => {
+  const {
+    id,
+    name,
+    units,
+    remainingCapacity,
+    onSimulateZone,
+    onRemoveZone,
+    onSelectZone,
+  } = props;
   const context = useContext(FleetBuilderContext);
+
+  const capacityColor = useMemo(() => {
+    if (remainingCapacity !== undefined) {
+      if (remainingCapacity > 0) {
+        return "green";
+      } else if (remainingCapacity < 0) {
+        return "red";
+      }
+    }
+
+    return "inherit";
+  }, [remainingCapacity]);
 
   if (!context) {
     return null;
   }
-
-  const { id, name, units, onSimulateZone, onRemoveZone, onSelectZone } = props;
 
   return (
     <Paper
@@ -41,7 +60,7 @@ export const UnitZone = (props: UnitZoneProps) => {
         <IconButton
           color="success"
           onClick={onSimulateZone}
-          sx={{ marginRight: "5px" }}
+          disabled={!context.shouldAllowSimulate}
         >
           {context.defendingZoneId === id ? (
             <RocketLaunchRounded />
@@ -52,18 +71,19 @@ export const UnitZone = (props: UnitZoneProps) => {
         <Button className="unit-zone__title" onClick={onSelectZone}>
           {name}
         </Button>
+        {remainingCapacity !== undefined && (
+          <Typography sx={{ color: capacityColor, fontWeight: "bold" }}>
+            {remainingCapacity}
+          </Typography>
+        )}
         {onRemoveZone && (
-          <IconButton
-            color="error"
-            onClick={onRemoveZone}
-            sx={{ marginLeft: "5px" }}
-          >
+          <IconButton color="error" onClick={onRemoveZone}>
             <CloseRounded />
           </IconButton>
         )}
       </div>
       {units.size === 0 ? (
-        <Typography>No Units</Typography>
+        <Typography style={{ margin: "10px" }}>No Units</Typography>
       ) : (
         <div style={{ margin: "10px" }}>
           {Array.from(units.entries()).map(([id, unit]) => {

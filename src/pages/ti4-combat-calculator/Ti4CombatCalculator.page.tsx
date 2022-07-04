@@ -6,6 +6,7 @@ import {
   Paper,
   Typography,
 } from "@mui/material";
+import classNames from "classnames";
 import { useCallback, useMemo, useState } from "react";
 import { Faction } from "../../ti4/classes/factions/Faction.class";
 import {
@@ -45,6 +46,8 @@ export const Ti4CombatCalculator = () => {
     addPlanet: player1AddPlanet,
     removePlanet: player1RemovePlanet,
     canUnitBeAddedToSelectedZone: player1CanUnitBeAddedToSelectedZone,
+    remainingSpaceCapacity: player1RemainingSpaceCapacity,
+    hasAtLeastOneUnit: player1HasAtLeastOneUnit,
   } = useFleetBuilder();
   const {
     faction: player2Faction,
@@ -62,6 +65,8 @@ export const Ti4CombatCalculator = () => {
     addPlanet: player2AddPlanet,
     removePlanet: player2RemovePlanet,
     canUnitBeAddedToSelectedZone: player2CanUnitBeAddedToSelectedZone,
+    remainingSpaceCapacity: player2RemainingSpaceCapacity,
+    hasAtLeastOneUnit: player2HasAtLeastOneUnit,
   } = useFleetBuilder();
   const [result, setResult] = useState<CombatStats | null>(null);
   const [defendingFaction, setDefendingFaction] = useState<Faction | null>(
@@ -109,6 +114,20 @@ export const Ti4CombatCalculator = () => {
       player2SpaceZone,
     ]
   );
+
+  const shouldAllowSimulate = useMemo(() => {
+    return (
+      player1HasAtLeastOneUnit &&
+      player2HasAtLeastOneUnit &&
+      player1RemainingSpaceCapacity >= 0 &&
+      player2RemainingSpaceCapacity >= 0
+    );
+  }, [
+    player1HasAtLeastOneUnit,
+    player1RemainingSpaceCapacity,
+    player2HasAtLeastOneUnit,
+    player2RemainingSpaceCapacity,
+  ]);
 
   const player1BackgroundColor = useMemo(() => {
     if (!player1Faction || !defendingFaction) {
@@ -226,16 +245,23 @@ export const Ti4CombatCalculator = () => {
     result,
   ]);
 
+  const combatCalcClassnames = classNames([
+    "ti4-combat-calc",
+    {
+      "ti4-combat-calc--results": !!result,
+    },
+  ]);
+
   return (
-    <div className="ti4-combat-calc">
-      <Paper
-        className="ti4-combat-calc__results"
-        style={{
-          backgroundColor: "transparent",
-        }}
-        elevation={3}
-      >
-        {result && (
+    <div className={combatCalcClassnames}>
+      {result && (
+        <Paper
+          className="ti4-combat-calc__results"
+          style={{
+            backgroundColor: "transparent",
+          }}
+          elevation={3}
+        >
           <span
             style={{
               flex: isGroundCombat
@@ -244,16 +270,14 @@ export const Ti4CombatCalculator = () => {
               backgroundColor: player1ResultsBackgroundColor,
             }}
           ></span>
-        )}
-        {result && !isGroundCombat && (
-          <span
-            style={{
-              flex: result.tieSpacePerc,
-              backgroundColor: tieResultsBackgroundColor,
-            }}
-          ></span>
-        )}
-        {result && (
+          {!isGroundCombat && (
+            <span
+              style={{
+                flex: result.tieSpacePerc,
+                backgroundColor: tieResultsBackgroundColor,
+              }}
+            ></span>
+          )}
           <span
             style={{
               flex: isGroundCombat
@@ -262,36 +286,38 @@ export const Ti4CombatCalculator = () => {
               backgroundColor: player2ResultsBackgroundColor,
             }}
           ></span>
-        )}
-      </Paper>
-      <Paper className="ti4-combat-calc__summary" elevation={3}>
-        <Accordion>
-          <AccordionSummary expandIcon={<ExpandMoreRounded />}>
-            <Typography>{summaryTitle}</Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            <div>
-              {result?.player1.winSpacePerc.toFixed(2) || 0}% Chance Player 1
-              Wins Space Combat
-            </div>
-            <div>
-              {result?.player1.winGroundPerc.toFixed(2) || 0}% Chance Player 1
-              Wins Ground Combat
-            </div>
-            <div>
-              {result?.tieSpacePerc.toFixed(2) || 0}% Chance Tie Space Combat
-            </div>
-            <div>
-              {result?.player2.winSpacePerc.toFixed(2) || 0}% Chance Player 2
-              Wins Space Combat
-            </div>
-            <div>
-              {result?.player2.winGroundPerc.toFixed(2) || 0}% Chance Player 2
-              Wins Ground Combat
-            </div>
-          </AccordionDetails>
-        </Accordion>
-      </Paper>
+        </Paper>
+      )}
+      {result && (
+        <Paper className="ti4-combat-calc__summary" elevation={3}>
+          <Accordion>
+            <AccordionSummary expandIcon={<ExpandMoreRounded />}>
+              <Typography>{summaryTitle}</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <div>
+                {result.player1.winSpacePerc.toFixed(2)}% Chance Player 1 Wins
+                Space Combat
+              </div>
+              <div>
+                {result.player1.winGroundPerc.toFixed(2)}% Chance Player 1 Wins
+                Ground Combat
+              </div>
+              <div>
+                {result.tieSpacePerc.toFixed(2)}% Chance Tie Space Combat
+              </div>
+              <div>
+                {result.player2.winSpacePerc.toFixed(2)}% Chance Player 2 Wins
+                Space Combat
+              </div>
+              <div>
+                {result.player2.winGroundPerc.toFixed(2)}% Chance Player 2 Wins
+                Ground Combat
+              </div>
+            </AccordionDetails>
+          </Accordion>
+        </Paper>
+      )}
       <Paper
         style={{
           backgroundColor: player1BackgroundColor,
@@ -318,6 +344,9 @@ export const Ti4CombatCalculator = () => {
             simulateCombatInZone: handleSimulateCombatClick,
             defendingZoneId: defendingZoneInfo?.id,
             canUnitBeAddedToSelectedZone: player1CanUnitBeAddedToSelectedZone,
+            remainingSpaceCapacity: player1RemainingSpaceCapacity,
+            hasAtLeastOneUnit: player1HasAtLeastOneUnit,
+            shouldAllowSimulate,
           }}
         >
           <FactionFleetBuilderForm shouldZonesBeOnRight={true} />
@@ -349,6 +378,9 @@ export const Ti4CombatCalculator = () => {
             simulateCombatInZone: handleSimulateCombatClick,
             defendingZoneId: defendingZoneInfo?.id,
             canUnitBeAddedToSelectedZone: player2CanUnitBeAddedToSelectedZone,
+            remainingSpaceCapacity: player2RemainingSpaceCapacity,
+            hasAtLeastOneUnit: player2HasAtLeastOneUnit,
+            shouldAllowSimulate,
           }}
         >
           <FactionFleetBuilderForm shouldZonesBeOnRight={false} />

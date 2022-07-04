@@ -17,8 +17,8 @@ export const UnitZoneArea = () => {
         id={SPACE_ZONE_ID}
         name={SPACE_ZONE_ID}
         units={context.spaceZone}
-        isSelected={context.selectedZone === SPACE_ZONE_ID}
         onSelectZone={() => context.setSelectedZone(SPACE_ZONE_ID)}
+        remainingCapacity={context.remainingSpaceCapacity}
         onSimulateZone={() => {
           if (context.faction) {
             context.simulateCombatInZone({
@@ -36,7 +36,6 @@ export const UnitZoneArea = () => {
             id={planetId}
             name={name}
             units={units}
-            isSelected={isSelected}
             onSelectZone={() => {
               context.setSelectedZone(planetId);
             }}

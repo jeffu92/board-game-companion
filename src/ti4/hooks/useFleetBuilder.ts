@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Cruiser } from "../classes/units/Cruiser.class";
 import { Dreadnought } from "../classes/units/Dreadnought.class";
 import { Fighter } from "../classes/units/Fighter.class";
@@ -49,6 +49,8 @@ export const useFleetBuilder: () => {
   addPlanet: () => void;
   removePlanet: (id: string) => void;
   canUnitBeAddedToSelectedZone: (unit: Immutable<Unit>) => boolean;
+  remainingSpaceCapacity: number;
+  hasAtLeastOneUnit: boolean;
 } = () => {
   const [faction, setFaction] = useImmer<Immutable<Faction> | null>(null);
   const [prototypes, setPrototypes] = useImmer<Immutable<Map<UnitEnum, Unit>>>(
@@ -61,6 +63,17 @@ export const useFleetBuilder: () => {
     Immutable<Map<string, Map<string, Unit>>>
   >(new Map());
   const [selectedZone, setSelectedZone] = useState<string>(SPACE_ZONE_ID);
+  const remainingSpaceCapacity = useMemo(() => {
+    let totalCapacity = 0;
+    let requiredCapacity = 0;
+    spaceZone.forEach((unit) => {
+      totalCapacity += unit.capacity ?? 0;
+      if (unit.requiresCapacity) {
+        requiredCapacity++;
+      }
+    });
+    return totalCapacity - requiredCapacity;
+  }, [spaceZone]);
 
   const setFactionAndPrototypes = useCallback(
     (faction: Faction) => {
@@ -80,13 +93,21 @@ export const useFleetBuilder: () => {
   const canUnitBeAddedToSelectedZone = useCallback(
     (unit: Immutable<Unit>) => {
       if (selectedZone === SPACE_ZONE_ID) {
-        return unit.isShip || !!unit.requiresCapacity;
+        return unit.requiresCapacity ? remainingSpaceCapacity > 0 : unit.isShip;
       }
 
       return unit.isGroundForce || unit.isStructure;
     },
-    [selectedZone]
+    [remainingSpaceCapacity, selectedZone]
   );
+
+  const hasAtLeastOneUnit = useMemo(() => {
+    let totalUnits = spaceZone.size;
+    planetZones.forEach((planet) => {
+      totalUnits += planet.size;
+    });
+    return totalUnits > 0;
+  }, [planetZones, spaceZone.size]);
 
   const addUnit = useCallback(
     (unit: UnitEnum) => {
@@ -210,5 +231,7 @@ export const useFleetBuilder: () => {
     addPlanet,
     removePlanet,
     canUnitBeAddedToSelectedZone,
+    remainingSpaceCapacity,
+    hasAtLeastOneUnit,
   };
 };

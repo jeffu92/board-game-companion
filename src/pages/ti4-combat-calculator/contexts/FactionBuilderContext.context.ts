@@ -9,6 +9,7 @@ export const FleetBuilderContext = createContext<
         planet?: { name: string; id: string };
       }) => void;
       defendingZoneId?: string | undefined;
+      shouldAllowSimulate: boolean;
     })
   | null
 >(null);

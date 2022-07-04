@@ -3,16 +3,23 @@
 
   display: grid;
   grid-template-columns: 1fr 1fr;
-  grid-template-rows: 40px auto 1fr;
+  grid-template-rows: 1fr;
   grid-template-areas:
-    "results results"
-    "summary summary"
     "player1 player2";
   row-gap: var(--ti4-combat-calc__padding);
   column-gap: var(--ti4-combat-calc__padding);
   height: calc(100vh - (var(--ti4-combat-calc__padding) * 2));
   width: calc(100vw - (var(--ti4-combat-calc__padding) * 2));
   padding: var(--ti4-combat-calc__padding);
+}
+
+.ti4-combat-calc.ti4-combat-calc--results {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 40px auto 1fr;
+  grid-template-areas:
+    "results results"
+    "summary summary"
+    "player1 player2";
 }
 
 .ti4-combat-calc__player1 {
