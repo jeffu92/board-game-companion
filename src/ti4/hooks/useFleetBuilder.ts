@@ -12,6 +12,7 @@ import { Destroyer } from "../classes/units/Destroyer.class";
 import { useImmer } from "use-immer";
 import { Immutable } from "immer";
 import { Faction } from "../classes/factions/Faction.class";
+import { Pds } from "../classes/units/Pds.class";
 
 export const unitMap: Immutable<Map<UnitEnum, Unit>> = new Map([
   [UnitEnum.WARSUN, new WarSun({ hasSustainedDamage: false })],
@@ -24,16 +25,17 @@ export const unitMap: Immutable<Map<UnitEnum, Unit>> = new Map([
   [UnitEnum.INFANTRY, new Infantry({ isUpgraded: false })],
   [UnitEnum.CARRIER, new Carrier({ isUpgraded: false })],
   [UnitEnum.DESTROYER, new Destroyer({ isUpgraded: false })],
+  [UnitEnum.PDS, new Pds({ isUpgraded: false })],
 ]);
 
-export const SPACE_ZONE_ID = "space";
+export const SPACE_ZONE_ID = "Space";
 
 export const useFleetBuilder: () => {
   faction: Immutable<Faction> | null;
-  setFaction: (faction: Faction | null) => void;
+  setFaction: (faction: Faction) => void;
   spaceZone: Immutable<Map<string, Unit>>;
   planetZones: Immutable<Map<string, Map<string, Unit>>>;
-  unitIsUpgraded: Immutable<Map<UnitEnum, boolean>>;
+  prototypes: Immutable<Map<UnitEnum, Unit>>;
   selectedZone: string;
   setSelectedZone: (id: string) => void;
   addUnit: (unit: UnitEnum) => void;
@@ -46,11 +48,12 @@ export const useFleetBuilder: () => {
   repairDamage: (id: string) => void;
   addPlanet: () => void;
   removePlanet: (id: string) => void;
+  canUnitBeAddedToSelectedZone: (unit: Immutable<Unit>) => boolean;
 } = () => {
   const [faction, setFaction] = useImmer<Immutable<Faction> | null>(null);
-  const [unitIsUpgraded, setUnitIsUpgraded] = useImmer<
-    Immutable<Map<UnitEnum, boolean>>
-  >(new Map());
+  const [prototypes, setPrototypes] = useImmer<Immutable<Map<UnitEnum, Unit>>>(
+    new Map()
+  );
   const [spaceZone, setSpaceZone] = useImmer<Immutable<Map<string, Unit>>>(
     new Map()
   );
@@ -59,23 +62,52 @@ export const useFleetBuilder: () => {
   >(new Map());
   const [selectedZone, setSelectedZone] = useState<string>(SPACE_ZONE_ID);
 
+  const setFactionAndPrototypes = useCallback(
+    (faction: Faction) => {
+      setFaction(faction);
+      const prototypes = new Map<UnitEnum, Unit>();
+      faction.getUnits().forEach((unitEnum) => {
+        const unit = unitMap.get(unitEnum);
+        if (unit) {
+          prototypes.set(unitEnum, Unit.copy(unit));
+        }
+      });
+      setPrototypes(prototypes);
+    },
+    [setFaction, setPrototypes]
+  );
+
+  const canUnitBeAddedToSelectedZone = useCallback(
+    (unit: Immutable<Unit>) => {
+      if (selectedZone === SPACE_ZONE_ID) {
+        return unit.isShip || !!unit.requiresCapacity;
+      }
+
+      return unit.isGroundForce || unit.isStructure;
+    },
+    [selectedZone]
+  );
+
   const addUnit = useCallback(
     (unit: UnitEnum) => {
       const unitId = uuidv4();
-      const unitToAdd = unitMap.get(unit);
-      if (unitToAdd) {
-        if (selectedZone === SPACE_ZONE_ID) {
-          setSpaceZone((draft) => {
-            draft.set(unitId, unitToAdd);
-          });
-        } else {
-          setPlanetZones((draft) => {
-            draft.get(selectedZone)?.set(unitId, unitToAdd);
-          });
+      const prototypalUnit = prototypes.get(unit);
+      if (prototypalUnit) {
+        const unitToAdd = Unit.copy(prototypalUnit);
+        if (unitToAdd) {
+          if (selectedZone === SPACE_ZONE_ID) {
+            setSpaceZone((draft) => {
+              draft.set(unitId, unitToAdd);
+            });
+          } else {
+            setPlanetZones((draft) => {
+              draft.get(selectedZone)?.set(unitId, unitToAdd);
+            });
+          }
         }
       }
     },
-    [selectedZone, setPlanetZones, setSpaceZone]
+    [prototypes, selectedZone, setPlanetZones, setSpaceZone]
   );
 
   const removeUnit = useCallback(
@@ -110,11 +142,11 @@ export const useFleetBuilder: () => {
           });
         });
       });
-      setUnitIsUpgraded((draft) => {
-        draft.set(options.unitEnum, options.shouldUpgrade);
+      setPrototypes((draft) => {
+        draft.get(options.unitEnum)?.setIsUpgraded(options.shouldUpgrade);
       });
     },
-    [setPlanetZones, setSpaceZone, setUnitIsUpgraded]
+    [setPlanetZones, setPrototypes, setSpaceZone]
   );
 
   const sustainDamage = useCallback(
@@ -164,10 +196,10 @@ export const useFleetBuilder: () => {
 
   return {
     faction,
-    setFaction,
+    setFaction: setFactionAndPrototypes,
     spaceZone,
     planetZones,
-    unitIsUpgraded,
+    prototypes,
     selectedZone,
     setSelectedZone,
     addUnit,
@@ -177,5 +209,6 @@ export const useFleetBuilder: () => {
     repairDamage,
     addPlanet,
     removePlanet,
+    canUnitBeAddedToSelectedZone,
   };
 };

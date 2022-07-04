@@ -1,28 +1,31 @@
-import { AbilityEnum } from "../../enums/Ability.enum";
 import { UnitEnum } from "../../enums/Unit.enum";
 import { Unit, UnitProperties } from "./Unit.class";
 
 export class WarSun extends Unit {
   static baseWarSun: UnitProperties = {
     name: "War Sun",
-    cost: 12,
-    combat: 3,
-    numAttacks: 3,
-    move: 2,
-    capacity: 6,
-    canSustainDamage: true,
-    bombardment: {
-      abilityEnum: AbilityEnum.BOMBARDMENT,
-      combat: 3,
-      numAttacks: 3,
+    space: {
+      combat: {
+        hitOn: 3,
+        numRolls: 3,
+      },
+      capacity: 6,
     },
+    ground: {
+      bombardment: {
+        hitOn: 3,
+        numRolls: 3,
+      },
+    },
+    canSustainDamage: true,
+    ignoresPlanetaryShield: true,
   };
 
   constructor(options: { hasSustainedDamage: boolean }) {
     const { hasSustainedDamage = false } = options;
 
     super({
-      unitEnum: UnitEnum.DREADNOUGHT,
+      unitEnum: UnitEnum.WARSUN,
       base: WarSun.baseWarSun,
       isUpgraded: false,
       productionLimit: 2,

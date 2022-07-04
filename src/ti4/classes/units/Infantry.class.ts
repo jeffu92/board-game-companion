@@ -9,25 +9,30 @@ export class Infantry extends Unit {
       unitEnum: UnitEnum.INFANTRY,
       base: {
         name: "Infantry 1",
-        cost: 0.5,
-        combat: 8,
-        numAttacks: 1,
-        move: 0,
-        capacity: 0,
-        canSustainDamage: false,
+        space: {
+          requiresCapacity: true,
+        },
+        ground: {
+          combat: {
+            numRolls: 1,
+            hitOn: 8,
+          },
+        },
       },
       upgrade: {
         name: "Infantry 2",
-        cost: 0.5,
-        combat: 7,
-        numAttacks: 1,
-        move: 0,
-        capacity: 0,
-        canSustainDamage: false,
+        space: {
+          requiresCapacity: true,
+        },
+        ground: {
+          combat: {
+            numRolls: 1,
+            hitOn: 7,
+          },
+        },
       },
       isUpgraded,
       productionLimit: 1000,
-      hasSustainedDamage: false,
     });
   }
 }

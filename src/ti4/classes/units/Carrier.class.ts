@@ -9,25 +9,26 @@ export class Carrier extends Unit {
       unitEnum: UnitEnum.CARRIER,
       base: {
         name: "Carrier 1",
-        cost: 3,
-        combat: 9,
-        numAttacks: 1,
-        move: 1,
-        capacity: 4,
-        canSustainDamage: false,
+        space: {
+          combat: {
+            numRolls: 1,
+            hitOn: 9,
+          },
+          capacity: 4,
+        },
       },
       upgrade: {
         name: "Carrier 2",
-        cost: 3,
-        combat: 9,
-        numAttacks: 1,
-        move: 2,
-        capacity: 6,
-        canSustainDamage: false,
+        space: {
+          combat: {
+            numRolls: 1,
+            hitOn: 9,
+          },
+          capacity: 6,
+        },
       },
       isUpgraded,
       productionLimit: 4,
-      hasSustainedDamage: false,
     });
   }
 }

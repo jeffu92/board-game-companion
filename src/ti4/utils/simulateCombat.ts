@@ -1,33 +1,41 @@
 import { Immutable } from "immer";
 import { Faction } from "../classes/factions/Faction.class";
-import { Fleet } from "../classes/Fleet.class";
+import { PlayerSimulator } from "../classes/PlayerSimulator.class";
 import { Unit } from "../classes/units/Unit.class";
 import { UnitEnum } from "../enums/Unit.enum";
 
 export interface CombatStats {
-  attackers: {
-    winPerc: number;
+  player1: {
+    winSpacePerc: number;
+    winGroundPerc: number;
   };
-  defenders: {
-    winPerc: number;
+  player2: {
+    winSpacePerc: number;
+    winGroundPerc: number;
   };
-  tiePerc: number;
+  tieSpacePerc: number;
 }
 
-export const simulateCombat: (
-  attacker: {
+export const simulateCombat: (options: {
+  player1: {
     faction: Immutable<Faction>;
-    units: Immutable<Map<string, Unit>>;
-  },
-  defender: {
+    space: Immutable<Map<string, Unit>>;
+    planets: Immutable<Map<string, Map<string, Unit>>>;
+  };
+  player2: {
     faction: Immutable<Faction>;
-    units: Immutable<Map<string, Unit>>;
-  }
-) => CombatStats = (attacker, defender) => {
+    space: Immutable<Map<string, Unit>>;
+    planets: Immutable<Map<string, Map<string, Unit>>>;
+  };
+  planetId?: string | undefined;
+}) => CombatStats = (options) => {
+  const { player1, player2, planetId } = options;
   const numSimulations = 10000;
 
-  let attackerWins = 0;
-  let defenderWins = 0;
+  let player1WinsSpace = 0;
+  let player1WinsGround = 0;
+  let player2WinsSpace = 0;
+  let player2WinsGround = 0;
 
   // simulate combat a number of times and record the results
   for (
@@ -35,60 +43,205 @@ export const simulateCombat: (
     simulationRound < numSimulations;
     simulationRound++
   ) {
-    const attackingFleet = new Fleet(attacker);
-    const defendingFleet = new Fleet(defender);
+    const player1Simulator = new PlayerSimulator(player1);
+    const player2Simulator = new PlayerSimulator(player2);
 
-    // generate anti-fighter barrage hits for both sides
-    const attackerAntiFighterBarrageHits = attackingFleet.simulateAntiFighterBarrage();
-    const defenderAntiFighterBarrageHits = defendingFleet.simulateAntiFighterBarrage();
-    attackingFleet.assignHits(defenderAntiFighterBarrageHits, UnitEnum.FIGHTER);
-    defendingFleet.assignHits(attackerAntiFighterBarrageHits, UnitEnum.FIGHTER);
+    // space cannon offense
+    const player1SpaceCannonOffenseHits = player1Simulator.simulateSpaceCannonOffense();
+    const player2SpaceCannonOffenseHits = player2Simulator.simulateSpaceCannonOffense();
+    player1Simulator.assignHitsToShips({
+      numHits: player2SpaceCannonOffenseHits,
+    });
+    player2Simulator.assignHitsToShips({
+      numHits: player1SpaceCannonOffenseHits,
+    });
 
-    // while there are units left on both sides
-    while (
-      attackingFleet.hasUnitsRemaining &&
-      defendingFleet.hasUnitsRemaining
-    ) {
-      // generate hits for both sides
-      const attackingUnitRollModifiers: Array<(unit: Unit) => number> = [];
-      if (attacker.faction.getCombatRollModifier) {
-        attackingUnitRollModifiers.push(attacker.faction.getCombatRollModifier);
-      }
-      const remainingAttackingUnitHits = attackingFleet.simulateCombat({
-        rollModifiers: attackingUnitRollModifiers,
-      });
+    // anti-fighter barrage
+    const player1AntiFighterBarrageHits = player1Simulator.simulateAntiFighterBarrage();
+    const player2AntiFighterBarrageHits = player2Simulator.simulateAntiFighterBarrage();
+    player1Simulator.assignHitsToShips({
+      numHits: player2AntiFighterBarrageHits,
+      unitEnum: UnitEnum.FIGHTER,
+    });
+    player2Simulator.assignHitsToShips({
+      numHits: player1AntiFighterBarrageHits,
+      unitEnum: UnitEnum.FIGHTER,
+    });
 
-      const defendingUnitRollModifiers: Array<(unit: Unit) => number> = [];
-      if (defender.faction.getCombatRollModifier) {
-        defendingUnitRollModifiers.push(defender.faction.getCombatRollModifier);
-      }
-      const remainingDefendingUnitHits = defendingFleet.simulateCombat({
-        rollModifiers: defendingUnitRollModifiers,
-      });
-
-      attackingFleet.assignHits(remainingDefendingUnitHits);
-      defendingFleet.assignHits(remainingAttackingUnitHits);
+    // setup global combat variables
+    const player1UnitRollModifiers: Array<(unit: Unit) => number> = [];
+    if (player1.faction.getCombatRollModifier) {
+      player1UnitRollModifiers.push(player1.faction.getCombatRollModifier);
+    }
+    const player2UnitRollModifiers: Array<(unit: Unit) => number> = [];
+    if (player2.faction.getCombatRollModifier) {
+      player2UnitRollModifiers.push(player2.faction.getCombatRollModifier);
     }
 
-    if (attackingFleet.hasUnitsRemaining && !defendingFleet.hasUnitsRemaining) {
-      attackerWins += 1;
-    } else if (
-      !attackingFleet.hasUnitsRemaining &&
-      defendingFleet.hasUnitsRemaining
+    // space combat
+    while (
+      player1Simulator.hasShipsRemainingInSpace &&
+      player2Simulator.hasShipsRemainingInSpace
     ) {
-      defenderWins += 1;
+      const remainingPlayer1UnitHits = player1Simulator.simulateSpaceCombat({
+        rollModifiers: player1UnitRollModifiers,
+      });
+      const remainingPlayer2UnitHits = player2Simulator.simulateSpaceCombat({
+        rollModifiers: player2UnitRollModifiers,
+      });
+      player1Simulator.assignHitsToShips({
+        numHits: remainingPlayer2UnitHits,
+      });
+      player2Simulator.assignHitsToShips({
+        numHits: remainingPlayer1UnitHits,
+      });
+    }
+
+    // winner destroys any excess fighters or ground forces in the space area
+    if (player1Simulator.hasUnitsRemainingInSpace()) {
+      player1Simulator.destroyExcessFightersThenGroundForces();
+    }
+    if (player2Simulator.hasUnitsRemainingInSpace()) {
+      player2Simulator.destroyExcessFightersThenGroundForces();
+    }
+
+    // register stats for space combat
+    if (
+      player1Simulator.hasUnitsRemainingInSpace() &&
+      !player2Simulator.hasUnitsRemainingInSpace()
+    ) {
+      player1WinsSpace += 1;
+    } else if (
+      !player1Simulator.hasUnitsRemainingInSpace() &&
+      player2Simulator.hasUnitsRemainingInSpace()
+    ) {
+      player2WinsSpace += 1;
+    }
+
+    // invasion
+    if (planetId) {
+      const isPlayer1Invading = player2Simulator.doesPlanetExist({ planetId });
+      const invadingPlayerSimulator = isPlayer1Invading
+        ? player1Simulator
+        : player2Simulator;
+      const defendingPlayerSimulator = isPlayer1Invading
+        ? player2Simulator
+        : player1Simulator;
+      const invadingPlayerUnitRollModifiers = isPlayer1Invading
+        ? player1UnitRollModifiers
+        : player2UnitRollModifiers;
+      const defendingPlayerUnitRollModifiers = isPlayer1Invading
+        ? player2UnitRollModifiers
+        : player1UnitRollModifiers;
+
+      // bombardment
+      if (
+        invadingPlayerSimulator.doesSpaceIgnorePlanetaryShield() ||
+        !defendingPlayerSimulator.doesPlanetHavePlanetaryShield({
+          planetId,
+        })
+      ) {
+        const bombardmentHits = invadingPlayerSimulator.simulateBombardment();
+        defendingPlayerSimulator.assignHitsToGroundForces({
+          numHits: bombardmentHits,
+          planetId,
+        });
+      }
+
+      // commit ground forces
+      invadingPlayerSimulator.commitGroundForces({ planetId });
+
+      // space cannon defense
+      const spaceCannonDefenseHits = defendingPlayerSimulator.simulateSpaceCannonDefense(
+        { planetId }
+      );
+      invadingPlayerSimulator.assignHitsToGroundForces({
+        numHits: spaceCannonDefenseHits,
+        planetId,
+      });
+
+      // ground combat
+      while (
+        invadingPlayerSimulator.hasGroundForcesRemainingOnPlanet({
+          planetId,
+        }) &&
+        defendingPlayerSimulator.hasGroundForcesRemainingOnPlanet({
+          planetId,
+        })
+      ) {
+        const remainingInvadingUnitHits = invadingPlayerSimulator.simulateGroundCombat(
+          {
+            planetId,
+            rollModifiers: invadingPlayerUnitRollModifiers,
+          }
+        );
+        const remainingDefendingUnitHits = defendingPlayerSimulator.simulateGroundCombat(
+          {
+            planetId,
+            rollModifiers: defendingPlayerUnitRollModifiers,
+          }
+        );
+
+        invadingPlayerSimulator.assignHitsToGroundForces({
+          planetId,
+          numHits: remainingDefendingUnitHits,
+        });
+        defendingPlayerSimulator.assignHitsToGroundForces({
+          planetId,
+          numHits: remainingInvadingUnitHits,
+        });
+      }
+
+      // establish control (destroy non-ground combat units)
+      invadingPlayerSimulator.destroyStructuresIfNoGroundForces({
+        planetId,
+      });
+      defendingPlayerSimulator.destroyStructuresIfNoGroundForces({
+        planetId,
+      });
+
+      // register stats for invasion
+      if (
+        invadingPlayerSimulator.hasUnitsRemainingOnPlanet({
+          planetId,
+        }) &&
+        !defendingPlayerSimulator.hasUnitsRemainingOnPlanet({
+          planetId,
+        })
+      ) {
+        if (isPlayer1Invading) {
+          player1WinsGround += 1;
+        } else {
+          player2WinsGround += 1;
+        }
+      } else if (
+        !invadingPlayerSimulator.hasUnitsRemainingOnPlanet({
+          planetId,
+        })
+      ) {
+        // defender wins on a tie
+        if (isPlayer1Invading) {
+          player2WinsGround += 1;
+        } else {
+          player1WinsGround += 1;
+        }
+      }
     }
   }
 
   const result: CombatStats = {
-    attackers: {
-      winPerc: (attackerWins / numSimulations) * 100,
+    player1: {
+      winSpacePerc: (player1WinsSpace / numSimulations) * 100,
+      winGroundPerc: (player1WinsGround / numSimulations) * 100,
     },
-    defenders: {
-      winPerc: (defenderWins / numSimulations) * 100,
+    player2: {
+      winSpacePerc: (player2WinsSpace / numSimulations) * 100,
+      winGroundPerc: (player2WinsGround / numSimulations) * 100,
     },
-    tiePerc:
-      ((numSimulations - (attackerWins + defenderWins)) / numSimulations) * 100,
+    tieSpacePerc:
+      ((numSimulations - (player1WinsSpace + player2WinsSpace)) /
+        numSimulations) *
+      100,
   };
   return result;
 };

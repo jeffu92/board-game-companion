@@ -34,6 +34,7 @@ export const ShipConfiguration = (props: ShipConfigurationProps) => {
 
   return (
     <div className="ship-configuration">
+      <span></span>
       <Button onClick={handleRemoveClick}>{name}</Button>
       {canSustainDamage ? (
         hasSustainedDamage ? (

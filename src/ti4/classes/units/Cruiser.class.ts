@@ -9,25 +9,25 @@ export class Cruiser extends Unit {
       unitEnum: UnitEnum.CRUISER,
       base: {
         name: "Cruiser 1",
-        cost: 2,
-        combat: 7,
-        numAttacks: 1,
-        move: 2,
-        capacity: 0,
-        canSustainDamage: false,
+        space: {
+          combat: {
+            numRolls: 1,
+            hitOn: 7,
+          },
+        },
       },
       upgrade: {
         name: "Cruiser 2",
-        cost: 2,
-        combat: 6,
-        numAttacks: 1,
-        move: 3,
-        capacity: 1,
-        canSustainDamage: false,
+        space: {
+          combat: {
+            numRolls: 1,
+            hitOn: 6,
+          },
+          capacity: 1,
+        },
       },
       isUpgraded,
       productionLimit: 8,
-      hasSustainedDamage: false,
     });
   }
 }

@@ -1,24 +1,28 @@
 import { immerable, Immutable } from "immer";
-import { AbilityEnum } from "../../enums/Ability.enum";
 import { UnitEnum } from "../../enums/Unit.enum";
 import { randomIntFromInterval } from "../../utils/randomIntFromInterval";
 
 export interface UnitProperties {
   name: string;
-  cost: number;
-  combat: number;
-  numAttacks: number;
-  move: number;
-  capacity: number;
-  canSustainDamage: boolean;
-  bombardment?: Ability;
-  antiFighterBarrage?: Ability;
+  space?: {
+    combat?: CombatDiceRoll;
+    antiFighterBarrage?: CombatDiceRoll;
+    capacity?: number;
+    requiresCapacity?: boolean;
+  };
+  ground?: {
+    combat?: CombatDiceRoll;
+    bombardment?: CombatDiceRoll;
+  };
+  spaceCannon?: CombatDiceRoll;
+  canSustainDamage?: boolean;
+  providesPlanetaryShield?: boolean;
+  ignoresPlanetaryShield?: boolean;
 }
 
-export interface Ability {
-  abilityEnum: AbilityEnum;
-  numAttacks: number;
-  combat: number;
+export interface CombatDiceRoll {
+  numRolls: number;
+  hitOn: number;
 }
 
 export class Unit {
@@ -29,7 +33,7 @@ export class Unit {
   private _upgrade?: UnitProperties | undefined;
   private _isUpgraded: boolean;
   private _productionLimit: number;
-  private _hasSustainedDamage: boolean;
+  private _hasSustainedDamage?: boolean | undefined;
 
   constructor(options: {
     unitEnum: UnitEnum;
@@ -37,7 +41,7 @@ export class Unit {
     upgrade?: UnitProperties | undefined;
     isUpgraded: boolean;
     productionLimit: number;
-    hasSustainedDamage: boolean;
+    hasSustainedDamage?: boolean | undefined;
   }) {
     this._unitEnum = options.unitEnum;
     this._base = options.base;
@@ -76,34 +80,46 @@ export class Unit {
       : this._base.name;
   }
 
-  get cost() {
+  get requiresCapacity() {
     return this.isUpgraded && this._upgrade
-      ? this._upgrade.cost
-      : this._base.cost;
+      ? this._upgrade.space?.requiresCapacity
+      : this._base.space?.requiresCapacity;
   }
 
-  get combat() {
+  get spaceCombat() {
     return this.isUpgraded && this._upgrade
-      ? this._upgrade.combat
-      : this._base.combat;
+      ? this._upgrade.space?.combat
+      : this._base.space?.combat;
   }
 
-  get numAttacks() {
+  get groundCombat() {
     return this.isUpgraded && this._upgrade
-      ? this._upgrade.numAttacks
-      : this._base.numAttacks;
+      ? this._upgrade.ground?.combat
+      : this._base.ground?.combat;
   }
 
-  get move() {
+  get isShip() {
+    return !!this.spaceCombat;
+  }
+
+  get isGroundForce() {
+    return !!this.groundCombat;
+  }
+
+  get isStructure() {
+    return !this.isShip && !this.isGroundForce;
+  }
+
+  get spaceCannon() {
     return this.isUpgraded && this._upgrade
-      ? this._upgrade.move
-      : this._base.move;
+      ? this._upgrade.spaceCannon
+      : this._base.spaceCannon;
   }
 
   get capacity() {
     return this.isUpgraded && this._upgrade
-      ? this._upgrade.capacity
-      : this._base.capacity;
+      ? this._upgrade.space?.capacity
+      : this._base.space?.capacity;
   }
 
   get canSustainDamage() {
@@ -116,16 +132,28 @@ export class Unit {
     return this._hasSustainedDamage;
   }
 
+  get providesPlanetaryShield() {
+    return this.isUpgraded && this._upgrade
+      ? this._upgrade.providesPlanetaryShield
+      : this._base.providesPlanetaryShield;
+  }
+
+  get ignoresPlanetaryShield() {
+    return this.isUpgraded && this._upgrade
+      ? this._upgrade.ignoresPlanetaryShield
+      : this._base.ignoresPlanetaryShield;
+  }
+
   get bombardment() {
     return this.isUpgraded && this._upgrade
-      ? this._upgrade.bombardment
-      : this._base.bombardment;
+      ? this._upgrade.ground?.bombardment
+      : this._base.ground?.bombardment;
   }
 
   get antiFighterBarrage() {
     return this.isUpgraded && this._upgrade
-      ? this._upgrade.antiFighterBarrage
-      : this._base.antiFighterBarrage;
+      ? this._upgrade.space?.antiFighterBarrage
+      : this._base.space?.antiFighterBarrage;
   }
 
   get isUpgraded() {
@@ -140,12 +168,26 @@ export class Unit {
     return this._productionLimit;
   }
 
-  get combatRating() {
-    return this.calculateCombatRating(this.numAttacks, this.combat);
+  get spaceCombatRating() {
+    if (!this.spaceCombat) {
+      return 0;
+    }
+
+    return this.calculateCombatRating(
+      this.spaceCombat.numRolls,
+      this.spaceCombat.hitOn
+    );
   }
 
-  private calculateCombatRating(numAttacks: number, combat: number) {
-    return numAttacks * (10 - combat);
+  get groundCombatRating() {
+    if (!this.groundCombat) {
+      return 0;
+    }
+
+    return this.calculateCombatRating(
+      this.groundCombat.numRolls,
+      this.groundCombat.hitOn
+    );
   }
 
   get isEligibleForSustainDamage() {
@@ -153,37 +195,71 @@ export class Unit {
   }
 
   /**
-   * Simulates this unit participating in combat.
+   * Simulates this unit participating in space combat.
    * @returns The number of hits this unit produced.
    */
-  simulateCombat(
+  simulateSpaceCombat(
     options: {
-      rollModifiers?: Array<(unit: Unit) => number>;
+      rollModifiers?: Array<(unit: Unit) => number> | undefined;
     } = {}
   ) {
-    // if an override is not provided for rolling combat die, use baseline
-    const { rollModifiers } = options;
-
-    let numHits = 0;
-    for (let i = 0; i < this.numAttacks; i++) {
-      if (this.rollCombatDie(rollModifiers) >= this.combat) {
-        numHits += 1;
-      }
+    if (!this.spaceCombat) {
+      return 0;
     }
 
-    return numHits;
+    return this.simulateDiceRolls({
+      diceRollStats: this.spaceCombat,
+      rollModifiers: options.rollModifiers,
+    });
+  }
+
+  /**
+   * Simulates this unit participating in ground combat.
+   * @returns The number of hits this unit produced.
+   */
+  simulateGroundCombat(
+    options: {
+      rollModifiers?: Array<(unit: Unit) => number> | undefined;
+    } = {}
+  ) {
+    if (!this.groundCombat) {
+      return 0;
+    }
+
+    return this.simulateDiceRolls({
+      diceRollStats: this.groundCombat,
+      rollModifiers: options.rollModifiers,
+    });
   }
 
   simulateAntiFighterBarrage() {
-    let numHits = 0;
-    if (this.antiFighterBarrage) {
-      for (let i = 0; i < this.antiFighterBarrage.numAttacks; i++) {
-        if (this.rollCombatDie() >= this.antiFighterBarrage.combat) {
-          numHits += 1;
-        }
-      }
+    if (!this.antiFighterBarrage) {
+      return 0;
     }
-    return numHits;
+
+    return this.simulateDiceRolls({
+      diceRollStats: this.antiFighterBarrage,
+    });
+  }
+
+  simulateBombardment() {
+    if (!this.bombardment) {
+      return 0;
+    }
+
+    return this.simulateDiceRolls({
+      diceRollStats: this.bombardment,
+    });
+  }
+
+  simulateSpaceCannon() {
+    if (!this.spaceCannon) {
+      return 0;
+    }
+
+    return this.simulateDiceRolls({
+      diceRollStats: this.spaceCannon,
+    });
   }
 
   sustainDamage() {
@@ -196,10 +272,30 @@ export class Unit {
     this._hasSustainedDamage = false;
   }
 
+  private simulateDiceRolls(options: {
+    diceRollStats: CombatDiceRoll;
+    rollModifiers?: Array<(unit: Unit) => number> | undefined;
+  }) {
+    const { diceRollStats, rollModifiers = [] } = options;
+
+    let numHits = 0;
+    for (let i = 0; i < diceRollStats.numRolls; i++) {
+      if (this.rollCombatDie(rollModifiers) >= diceRollStats.hitOn) {
+        numHits += 1;
+      }
+    }
+
+    return numHits;
+  }
+
   private rollCombatDie(rollModifiers?: Array<(unit: Unit) => number>) {
     return (
       randomIntFromInterval(1, 10) +
       (rollModifiers?.reduce((prev, curr) => prev + curr(this), 0) ?? 0)
     );
+  }
+
+  private calculateCombatRating(numAttacks: number, combat: number) {
+    return numAttacks * (10 - combat);
   }
 }

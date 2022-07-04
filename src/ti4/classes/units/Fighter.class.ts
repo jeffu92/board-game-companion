@@ -9,25 +9,26 @@ export class Fighter extends Unit {
       unitEnum: UnitEnum.FIGHTER,
       base: {
         name: "Fighter 1",
-        cost: 0.5,
-        combat: 9,
-        numAttacks: 1,
-        move: 0,
-        capacity: 0,
-        canSustainDamage: false,
+        space: {
+          combat: {
+            numRolls: 1,
+            hitOn: 9,
+          },
+          requiresCapacity: true,
+        },
       },
       upgrade: {
         name: "Fighter 2",
-        cost: 0.5,
-        combat: 8,
-        numAttacks: 1,
-        move: 2,
-        capacity: 0,
-        canSustainDamage: false,
+        space: {
+          combat: {
+            numRolls: 1,
+            hitOn: 8,
+          },
+          requiresCapacity: true,
+        },
       },
       isUpgraded,
       productionLimit: 1000,
-      hasSustainedDamage: false,
     });
   }
 }

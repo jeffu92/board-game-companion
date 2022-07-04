@@ -2,9 +2,10 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
+  Paper,
   Typography,
 } from "@mui/material";
-import { ExpandMore } from "@mui/icons-material";
+import { ExpandMoreRounded } from "@mui/icons-material";
 import "./FleetBuilderForm.component.css";
 import { useCallback, useContext, useMemo, useState } from "react";
 import classNames from "classnames";
@@ -63,12 +64,12 @@ export const FleetBuilderForm = (props: FleetBuilderFormProps) => {
     <div className={fleetBuilderFormClassnames}>
       {!shouldZonesBeOnRight && <UnitZoneArea />}
       <div className="fleet-builder-form__options">
-        <div>
+        <Paper className="fleet-builder-form__optional">
           <Accordion
             expanded={isFactionSectionExpanded}
             onChange={handleFactionSectionExpansionChange}
           >
-            <AccordionSummary expandIcon={<ExpandMore />}>
+            <AccordionSummary expandIcon={<ExpandMoreRounded />}>
               <Typography>Faction</Typography>
             </AccordionSummary>
             <AccordionDetails>
@@ -79,7 +80,7 @@ export const FleetBuilderForm = (props: FleetBuilderFormProps) => {
             expanded={isTechSectionExpanded}
             onChange={handleTechSectionExpansionChange}
           >
-            <AccordionSummary expandIcon={<ExpandMore />}>
+            <AccordionSummary expandIcon={<ExpandMoreRounded />}>
               <Typography>Technology</Typography>
             </AccordionSummary>
             <AccordionDetails>
@@ -90,14 +91,14 @@ export const FleetBuilderForm = (props: FleetBuilderFormProps) => {
             expanded={isActionCardsSectionExpanded}
             onChange={handleActionCardsSectionExpansionChange}
           >
-            <AccordionSummary expandIcon={<ExpandMore />}>
+            <AccordionSummary expandIcon={<ExpandMoreRounded />}>
               <Typography>Action Cards</Typography>
             </AccordionSummary>
             <AccordionDetails>
               <div>Action Cards!</div>
             </AccordionDetails>
           </Accordion>
-        </div>
+        </Paper>
         <AddUnitsPanel />
       </div>
       {shouldZonesBeOnRight && <UnitZoneArea />}
