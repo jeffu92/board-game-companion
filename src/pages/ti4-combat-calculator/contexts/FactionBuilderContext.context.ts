@@ -1,5 +1,6 @@
 import { createContext } from "react";
 import { Faction } from "../../../ti4/classes/factions/Faction.class";
+import { ActionCardEnum } from "../../../ti4/enums/ActionCard.enum";
 import { useFleetBuilder } from "../../../ti4/hooks/useFleetBuilder";
 
 export const FleetBuilderContext = createContext<
@@ -10,6 +11,7 @@ export const FleetBuilderContext = createContext<
       }) => void;
       defendingZoneId?: string | undefined;
       shouldAllowSimulate: boolean;
+      areActionCardsAvailable: (actionCardEnum: ActionCardEnum) => boolean;
     })
   | null
 >(null);

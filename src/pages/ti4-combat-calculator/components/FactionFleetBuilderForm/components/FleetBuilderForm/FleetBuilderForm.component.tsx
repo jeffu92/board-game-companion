@@ -12,6 +12,7 @@ import classNames from "classnames";
 import { AddUnitsPanel } from "./components/AddUnitsPanel/AddUnitsPanel.component";
 import { UnitZoneArea } from "./components/UnitZoneArea/UnitZoneArea.component";
 import { FleetBuilderContext } from "../../../../contexts/FactionBuilderContext.context";
+import { ActionCards } from "./components/ActionCards/ActionCards.component";
 
 export interface FleetBuilderFormProps {
   className?: string;
@@ -25,10 +26,6 @@ export const FleetBuilderForm = (props: FleetBuilderFormProps) => {
     false
   );
   const [isTechSectionExpanded, setIsTechSectionExpanded] = useState(false);
-  const [
-    isActionCardsSectionExpanded,
-    setIsActionCardSectionExpanded,
-  ] = useState(false);
 
   const handleFactionSectionExpansionChange = useCallback(
     (_: React.SyntheticEvent<Element, Event>, expanded: boolean) => {
@@ -40,13 +37,6 @@ export const FleetBuilderForm = (props: FleetBuilderFormProps) => {
   const handleTechSectionExpansionChange = useCallback(
     (_: React.SyntheticEvent<Element, Event>, expanded: boolean) => {
       setIsTechSectionExpanded(expanded);
-    },
-    []
-  );
-
-  const handleActionCardsSectionExpansionChange = useCallback(
-    (_: React.SyntheticEvent<Element, Event>, expanded: boolean) => {
-      setIsActionCardSectionExpanded(expanded);
     },
     []
   );
@@ -87,17 +77,7 @@ export const FleetBuilderForm = (props: FleetBuilderFormProps) => {
               <div>Technology!</div>
             </AccordionDetails>
           </Accordion>
-          <Accordion
-            expanded={isActionCardsSectionExpanded}
-            onChange={handleActionCardsSectionExpansionChange}
-          >
-            <AccordionSummary expandIcon={<ExpandMoreRounded />}>
-              <Typography>Action Cards</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <div>Action Cards!</div>
-            </AccordionDetails>
-          </Accordion>
+          <ActionCards />
         </Paper>
         <AddUnitsPanel />
       </div>

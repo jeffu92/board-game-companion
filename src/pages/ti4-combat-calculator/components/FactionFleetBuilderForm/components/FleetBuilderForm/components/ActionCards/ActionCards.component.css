@@ -1,0 +1,8 @@
+.action-card__container {
+    display: flex;
+    align-items: center;
+}
+
+.action-card__title {
+    flex: 1
+}
