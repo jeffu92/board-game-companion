@@ -1,7 +1,9 @@
 import { Immutable } from "immer";
+import { actionCardMap } from "../classes/action-cards/actionCardMap";
 import { Faction } from "../classes/factions/Faction.class";
 import { PlayerSimulator } from "../classes/PlayerSimulator.class";
-import { Unit } from "../classes/units/Unit.class";
+import { CombatDiceRollModifer, Unit } from "../classes/units/Unit.class";
+import { ActionCardEnum } from "../enums/ActionCard.enum";
 import { UnitEnum } from "../enums/Unit.enum";
 
 export interface CombatStats {
@@ -21,11 +23,13 @@ export function simulateCombat(options: {
     faction: Immutable<Faction>;
     space: Immutable<Map<string, Unit>>;
     planets: Immutable<Map<string, Map<string, Unit>>>;
+    actionCards: Immutable<Map<ActionCardEnum, number>>;
   };
   player2: {
     faction: Immutable<Faction>;
     space: Immutable<Map<string, Unit>>;
     planets: Immutable<Map<string, Map<string, Unit>>>;
+    actionCards: Immutable<Map<ActionCardEnum, number>>;
   };
   planetId?: string | undefined;
 }) {
@@ -38,6 +42,50 @@ export function simulateCombat(options: {
       let player1WinsGround = 0;
       let player2WinsSpace = 0;
       let player2WinsGround = 0;
+
+      // set up constants
+
+      // setup global combat variables
+      const player1GlobalUnitRollModifiers: Array<CombatDiceRollModifer> = [];
+      if (player1.faction.getCombatRollModifier) {
+        player1GlobalUnitRollModifiers.push(
+          player1.faction.getCombatRollModifier
+        );
+      }
+      const player2GlobalUnitRollModifiers: Array<CombatDiceRollModifer> = [];
+      if (player2.faction.getCombatRollModifier) {
+        player2GlobalUnitRollModifiers.push(
+          player2.faction.getCombatRollModifier
+        );
+      }
+
+      // setup space combat round 1 roll modifiers
+      const player1SpaceCombatRound1RollModifiers: Array<CombatDiceRollModifer> = [];
+      player1.actionCards.forEach((numCards, actionCardEnum) => {
+        const actionCard = actionCardMap.get(actionCardEnum);
+        if (actionCard) {
+          if (actionCard.getSpaceCombatRound1RollModifier) {
+            for (let i = 0; i < numCards; i++) {
+              player1SpaceCombatRound1RollModifiers.push(
+                actionCard.getSpaceCombatRound1RollModifier
+              );
+            }
+          }
+        }
+      });
+      const player2SpaceCombatRound1RollModifiers: Array<CombatDiceRollModifer> = [];
+      player2.actionCards.forEach((numCards, actionCardEnum) => {
+        const actionCard = actionCardMap.get(actionCardEnum);
+        if (actionCard) {
+          if (actionCard.getSpaceCombatRound1RollModifier) {
+            for (let i = 0; i < numCards; i++) {
+              player2SpaceCombatRound1RollModifiers.push(
+                actionCard.getSpaceCombatRound1RollModifier
+              );
+            }
+          }
+        }
+      });
 
       // simulate combat a number of times and record the results
       for (
@@ -70,29 +118,37 @@ export function simulateCombat(options: {
           unitEnum: UnitEnum.FIGHTER,
         });
 
-        // setup global combat variables
-        const player1UnitRollModifiers: Array<(unit: Unit) => number> = [];
-        if (player1.faction.getCombatRollModifier) {
-          player1UnitRollModifiers.push(player1.faction.getCombatRollModifier);
-        }
-        const player2UnitRollModifiers: Array<(unit: Unit) => number> = [];
-        if (player2.faction.getCombatRollModifier) {
-          player2UnitRollModifiers.push(player2.faction.getCombatRollModifier);
-        }
-
         // space combat
+        let spaceCombatRound = 1;
         while (
           player1Simulator.hasShipsRemainingInSpace &&
           player2Simulator.hasShipsRemainingInSpace
         ) {
+          // make a copy of the
+          const player1UnitRollModifiersThisRound = [
+            ...player1GlobalUnitRollModifiers,
+          ];
+          const player2UnitRollModifiersThisRound = [
+            ...player2GlobalUnitRollModifiers,
+          ];
+
+          if (spaceCombatRound === 1) {
+            player1UnitRollModifiersThisRound.push(
+              ...player1SpaceCombatRound1RollModifiers
+            );
+            player2UnitRollModifiersThisRound.push(
+              ...player2SpaceCombatRound1RollModifiers
+            );
+          }
+
           const remainingPlayer1UnitHits = player1Simulator.simulateSpaceCombat(
             {
-              rollModifiers: player1UnitRollModifiers,
+              rollModifiers: player1UnitRollModifiersThisRound,
             }
           );
           const remainingPlayer2UnitHits = player2Simulator.simulateSpaceCombat(
             {
-              rollModifiers: player2UnitRollModifiers,
+              rollModifiers: player2UnitRollModifiersThisRound,
             }
           );
           player1Simulator.assignHitsToShips({
@@ -135,12 +191,12 @@ export function simulateCombat(options: {
           const defendingPlayerSimulator = isPlayer1Invading
             ? player2Simulator
             : player1Simulator;
-          const invadingPlayerUnitRollModifiers = isPlayer1Invading
-            ? player1UnitRollModifiers
-            : player2UnitRollModifiers;
-          const defendingPlayerUnitRollModifiers = isPlayer1Invading
-            ? player2UnitRollModifiers
-            : player1UnitRollModifiers;
+          const invadingPlayerGlobalUnitRollModifiers = isPlayer1Invading
+            ? player1GlobalUnitRollModifiers
+            : player2GlobalUnitRollModifiers;
+          const defendingPlayerGlobalUnitRollModifiers = isPlayer1Invading
+            ? player2GlobalUnitRollModifiers
+            : player1GlobalUnitRollModifiers;
 
           // bombardment
           if (
@@ -180,13 +236,13 @@ export function simulateCombat(options: {
             const remainingInvadingUnitHits = invadingPlayerSimulator.simulateGroundCombat(
               {
                 planetId,
-                rollModifiers: invadingPlayerUnitRollModifiers,
+                rollModifiers: invadingPlayerGlobalUnitRollModifiers,
               }
             );
             const remainingDefendingUnitHits = defendingPlayerSimulator.simulateGroundCombat(
               {
                 planetId,
-                rollModifiers: defendingPlayerUnitRollModifiers,
+                rollModifiers: defendingPlayerGlobalUnitRollModifiers,
               }
             );
 

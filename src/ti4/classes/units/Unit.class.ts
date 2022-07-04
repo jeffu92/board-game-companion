@@ -8,6 +8,8 @@ interface UnitBehaviorModifiers {
   };
 }
 
+export type CombatDiceRollModifer = (unit: Unit) => number;
+
 export interface UnitProperties {
   name: string;
   space?: {
@@ -213,7 +215,7 @@ export class Unit {
    */
   simulateSpaceCombat(
     options: {
-      rollModifiers?: Array<(unit: Unit) => number> | undefined;
+      rollModifiers?: Array<CombatDiceRollModifer> | undefined;
     } = {}
   ) {
     if (!this.spaceCombat) {
@@ -236,7 +238,7 @@ export class Unit {
    */
   simulateGroundCombat(
     options: {
-      rollModifiers?: Array<(unit: Unit) => number> | undefined;
+      rollModifiers?: Array<CombatDiceRollModifer> | undefined;
     } = {}
   ) {
     if (!this.groundCombat) {
@@ -295,7 +297,7 @@ export class Unit {
 
   private simulateDiceRolls(options: {
     diceRollStats: CombatDiceRoll;
-    rollModifiers?: Array<(unit: Unit) => number> | undefined;
+    rollModifiers?: Array<CombatDiceRollModifer> | undefined;
     hitModifiers?:
       | {
           produceAdditionalHitsBeforeRollModifiers?:
