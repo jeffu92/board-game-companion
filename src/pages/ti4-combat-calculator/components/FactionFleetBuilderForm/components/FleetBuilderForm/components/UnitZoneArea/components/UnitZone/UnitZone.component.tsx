@@ -27,16 +27,19 @@ export const UnitZone = (props: UnitZoneProps) => {
   return (
     <Paper
       className="unit-zone"
-      elevation={isSelected ? 15 : 1}
       sx={{
-        border: `1px ${isSelected ? "gray" : "lightgray"} solid`,
+        border: `1px lightgray solid`,
       }}
     >
       <div className="unit-zone__title-container">
         <IconButton color="success" onClick={onSimulateZone}>
           <BarChart />
         </IconButton>
-        <Button className="unit-zone__title" onClick={onSelectZone}>
+        <Button
+          className="unit-zone__title"
+          onClick={onSelectZone}
+          variant={isSelected ? "outlined" : "text"}
+        >
           {name}
         </Button>
         {onRemoveZone && (

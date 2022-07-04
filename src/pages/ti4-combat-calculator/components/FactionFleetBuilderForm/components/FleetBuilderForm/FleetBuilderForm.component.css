@@ -13,6 +13,10 @@
   row-gap: 20px;
 }
 
+.fleet-builder-form__optional {
+  border: 1px lightgray solid;
+}
+
 .fleet-builder-form__add-unit-buttons {
   display: flex;
   flex-direction: column;

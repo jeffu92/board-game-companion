@@ -19,7 +19,13 @@ export const UnitZoneArea = () => {
         units={context.spaceZone}
         isSelected={context.selectedZone === SPACE_ZONE_ID}
         onSelectZone={() => context.setSelectedZone(SPACE_ZONE_ID)}
-        onSimulateZone={() => context.simulateCombatInZone()}
+        onSimulateZone={() => {
+          if (context.faction) {
+            context.simulateCombatInZone({
+              defendingFaction: context.faction,
+            });
+          }
+        }}
       />
       <Button onClick={context.addPlanet}>Add Planet</Button>
       {Array.from(context.planetZones).map(([planetId, units], index) => {
@@ -40,7 +46,17 @@ export const UnitZoneArea = () => {
                 context.setSelectedZone(SPACE_ZONE_ID);
               }
             }}
-            onSimulateZone={() => context.simulateCombatInZone(planetId)}
+            onSimulateZone={() => {
+              if (context.faction) {
+                context.simulateCombatInZone({
+                  defendingFaction: context.faction,
+                  planet: {
+                    id: planetId,
+                    name,
+                  },
+                });
+              }
+            }}
           />
         );
       })}

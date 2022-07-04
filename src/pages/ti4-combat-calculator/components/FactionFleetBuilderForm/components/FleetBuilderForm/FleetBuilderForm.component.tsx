@@ -2,6 +2,7 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
+  Paper,
   Typography,
 } from "@mui/material";
 import { ExpandMore } from "@mui/icons-material";
@@ -63,7 +64,7 @@ export const FleetBuilderForm = (props: FleetBuilderFormProps) => {
     <div className={fleetBuilderFormClassnames}>
       {!shouldZonesBeOnRight && <UnitZoneArea />}
       <div className="fleet-builder-form__options">
-        <div>
+        <Paper className="fleet-builder-form__optional">
           <Accordion
             expanded={isFactionSectionExpanded}
             onChange={handleFactionSectionExpansionChange}
@@ -97,7 +98,7 @@ export const FleetBuilderForm = (props: FleetBuilderFormProps) => {
               <div>Action Cards!</div>
             </AccordionDetails>
           </Accordion>
-        </div>
+        </Paper>
         <AddUnitsPanel />
       </div>
       {shouldZonesBeOnRight && <UnitZoneArea />}

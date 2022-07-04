@@ -1,18 +1,40 @@
-import { Paper } from "@mui/material";
-import { useCallback, useState } from "react";
-import { useFleetBuilder } from "../../ti4/hooks/useFleetBuilder";
+import { ExpandMore } from "@mui/icons-material";
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Paper,
+  Typography,
+} from "@mui/material";
+import { useCallback, useMemo, useState } from "react";
+import { Faction } from "../../ti4/classes/factions/Faction.class";
+import {
+  SPACE_ZONE_ID,
+  useFleetBuilder,
+} from "../../ti4/hooks/useFleetBuilder";
 import { CombatStats, simulateCombat } from "../../ti4/utils/simulateCombat";
 import { FactionFleetBuilderForm } from "./components/FactionFleetBuilderForm/FactionFleetBuilderForm.component";
 import { FleetBuilderContext } from "./contexts/FactionBuilderContext.context";
 import "./Ti4CombatCalculator.page.css";
 
+const paperOffColorValue = 245;
+const resultsSpaceOffColorValue = paperOffColorValue - 55;
+const resultsGroundOffColorValue = resultsSpaceOffColorValue - 40;
+const summaryOffColorValue = resultsGroundOffColorValue - 50;
+const attackerPaperBackgroundColor = `rgb(255, ${paperOffColorValue}, ${paperOffColorValue})`;
+const defenderPaperBackgroundColor = `rgb(${paperOffColorValue}, ${paperOffColorValue}, 255)`;
+const attackerResultsBackgroundColor = `rgb(255, ${resultsSpaceOffColorValue}, ${resultsSpaceOffColorValue})`;
+const tieResultsBackgroundColor = `rgb(${resultsSpaceOffColorValue}, ${resultsSpaceOffColorValue}, ${resultsSpaceOffColorValue})`;
+const defenderResultsBackgroundColor = `rgb(${resultsSpaceOffColorValue}, ${resultsSpaceOffColorValue}, 255)`;
+const attackerSummaryTextColor = `rgb(255, ${summaryOffColorValue}, ${summaryOffColorValue})`;
+const defenderSummaryTextColor = `rgb(${summaryOffColorValue}, ${summaryOffColorValue}, 255)`;
 export const Ti4CombatCalculator = () => {
   const {
     faction: player1Faction,
     setFaction: player1SetFaction,
     spaceZone: player1SpaceZone,
     planetZones: player1PlanetZones,
-    unitIsUpgraded: player1UnitIsUpgraded,
+    prototypes: player1Prototypes,
     selectedZone: player1SelectedZone,
     setSelectedZone: player1SetSelectedZone,
     addUnit: player1AddUnit,
@@ -28,7 +50,7 @@ export const Ti4CombatCalculator = () => {
     setFaction: player2SetFaction,
     spaceZone: player2SpaceZone,
     planetZones: player2PlanetZones,
-    unitIsUpgraded: player2UnitIsUpgraded,
+    prototypes: player2Prototypes,
     selectedZone: player2SelectedZone,
     setSelectedZone: player2SetSelectedZone,
     addUnit: player2AddUnit,
@@ -40,24 +62,36 @@ export const Ti4CombatCalculator = () => {
     removePlanet: player2RemovePlanet,
   } = useFleetBuilder();
   const [result, setResult] = useState<CombatStats | null>(null);
+  const [defendingFaction, setDefendingFaction] = useState<Faction | null>(
+    null
+  );
+  const [defendingZoneName, setDefendingZoneName] = useState<string | null>(
+    null
+  );
 
   const handleSimulateCombatClick = useCallback(
-    (planetId?: string) => {
+    (options: {
+      defendingFaction: Faction;
+      planet?: { name: string; id: string };
+    }) => {
+      const { defendingFaction, planet } = options;
       if (player1Faction && player2Faction) {
-        const result = simulateCombat(
-          {
+        const result = simulateCombat({
+          player1: {
             faction: player1Faction,
             space: player1SpaceZone,
             planets: player1PlanetZones,
           },
-          {
+          player2: {
             faction: player2Faction,
             space: player2SpaceZone,
             planets: player2PlanetZones,
           },
-          planetId
-        );
+          planetId: planet?.id,
+        });
         setResult(result);
+        setDefendingFaction(defendingFaction);
+        setDefendingZoneName(planet?.name ?? SPACE_ZONE_ID);
       }
     },
     [
@@ -70,35 +104,192 @@ export const Ti4CombatCalculator = () => {
     ]
   );
 
-  const offColorValue = 190;
-  const borderValue = offColorValue - 50;
+  const player1BackgroundColor = useMemo(() => {
+    if (!player1Faction || !defendingFaction) {
+      return "white";
+    }
+
+    return defendingFaction.factionEnum === player1Faction.factionEnum
+      ? defenderPaperBackgroundColor
+      : attackerPaperBackgroundColor;
+  }, [defendingFaction, player1Faction]);
+
+  const player2BackgroundColor = useMemo(() => {
+    if (!player2Faction || !defendingFaction) {
+      return "white";
+    }
+
+    return defendingFaction.factionEnum === player2Faction.factionEnum
+      ? defenderPaperBackgroundColor
+      : attackerPaperBackgroundColor;
+  }, [defendingFaction, player2Faction]);
+
+  const player1ResultsBackgroundColor = useMemo(() => {
+    if (!player1Faction || !defendingFaction) {
+      return "white";
+    }
+
+    return defendingFaction.factionEnum === player1Faction.factionEnum
+      ? defenderResultsBackgroundColor
+      : attackerResultsBackgroundColor;
+  }, [defendingFaction, player1Faction]);
+
+  const player2ResultsBackgroundColor = useMemo(() => {
+    if (!player2Faction || !defendingFaction) {
+      return "white";
+    }
+
+    return defendingFaction.factionEnum === player2Faction.factionEnum
+      ? defenderResultsBackgroundColor
+      : attackerResultsBackgroundColor;
+  }, [defendingFaction, player2Faction]);
+
+  const isGroundCombat = useMemo(() => {
+    return defendingZoneName && defendingZoneName !== SPACE_ZONE_ID;
+  }, [defendingZoneName]);
+
+  const summaryTitle = useMemo(() => {
+    if (
+      player1Faction &&
+      player2Faction &&
+      defendingFaction &&
+      defendingZoneName &&
+      result
+    ) {
+      const differential =
+        defendingZoneName === SPACE_ZONE_ID
+          ? result.player1.winSpacePerc - result.player2.winSpacePerc
+          : result.player1.winGroundPerc - result.player2.winGroundPerc;
+      if (differential <= 10 && differential >= -10) {
+        return (
+          <>
+            <span>
+              It's a <b>toss-up.</b>
+            </span>
+          </>
+        );
+      } else {
+        const winningFaction =
+          differential > 0 ? player1Faction : player2Faction;
+        let winningDescription;
+        if (differential > 80 || differential < -80) {
+          winningDescription = "Extremely Favored";
+        } else if (differential > 50 || differential < -50) {
+          winningDescription = "Heavily Favored";
+        } else if (differential > 30 || differential < -30) {
+          winningDescription = "Favored";
+        } else if (differential > 10 || differential < -10) {
+          winningDescription = "Slightly Favored";
+        }
+
+        let outcomeDescription;
+        if (winningFaction.factionEnum === defendingFaction.factionEnum) {
+          outcomeDescription = "Maintain Control";
+        } else {
+          outcomeDescription = "Gain Control";
+        }
+
+        const winningFactionTextColor =
+          winningFaction.factionEnum === defendingFaction.factionEnum
+            ? defenderSummaryTextColor
+            : attackerSummaryTextColor;
+        return (
+          <>
+            <span>
+              <b
+                style={{
+                  color: winningFactionTextColor,
+                }}
+              >
+                {winningFaction.factionEnum}
+              </b>{" "}
+              are <b>{winningDescription}</b> to <b>{outcomeDescription}</b> of{" "}
+              <b>{defendingZoneName}</b>.
+            </span>
+          </>
+        );
+      }
+    }
+
+    return "Summary";
+  }, [
+    defendingFaction,
+    defendingZoneName,
+    player1Faction,
+    player2Faction,
+    result,
+  ]);
 
   return (
     <div className="ti4-combat-calc">
-      <div className="ti4-combat-calc__results">
-        <span
-          style={{
-            flex: result?.player1.winPerc ?? 0,
-            backgroundColor: `rgb(255, ${offColorValue}, ${offColorValue})`,
-            borderRight: `1px rgb(${borderValue}, ${borderValue}, ${borderValue}) solid`,
-          }}
-        ></span>
-        <span
-          style={{
-            flex: result?.tiePerc ?? 1,
-            backgroundColor: `rgb(${offColorValue}, ${offColorValue}, ${offColorValue})`,
-          }}
-        ></span>
-        <span
-          style={{
-            flex: result?.player2.winPerc ?? 0,
-            backgroundColor: `rgb(${offColorValue}, ${offColorValue}, 255)`,
-            borderLeft: `1px rgb(${borderValue}, ${borderValue}, ${borderValue}) solid`,
-          }}
-        ></span>
-      </div>
       <Paper
-        style={{ backgroundColor: "rgb(255, 245, 245)" }}
+        className="ti4-combat-calc__results"
+        style={{
+          backgroundColor: "transparent",
+        }}
+        elevation={3}
+      >
+        {result && (
+          <span
+            style={{
+              flex: isGroundCombat
+                ? result.player1.winGroundPerc
+                : result.player1.winSpacePerc,
+              backgroundColor: player1ResultsBackgroundColor,
+            }}
+          ></span>
+        )}
+        {result && !isGroundCombat && (
+          <span
+            style={{
+              flex: result.tieSpacePerc,
+              backgroundColor: tieResultsBackgroundColor,
+            }}
+          ></span>
+        )}
+        {result && (
+          <span
+            style={{
+              flex: isGroundCombat
+                ? result.player2.winGroundPerc
+                : result.player2.winSpacePerc,
+              backgroundColor: player2ResultsBackgroundColor,
+            }}
+          ></span>
+        )}
+      </Paper>
+      <Paper className="ti4-combat-calc__summary" elevation={3}>
+        <Accordion>
+          <AccordionSummary expandIcon={<ExpandMore />}>
+            <Typography>{summaryTitle}</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <div>
+              {result?.player1.winSpacePerc.toFixed(2) || 0}% Chance Player 1
+              Wins Space Combat
+            </div>
+            <div>
+              {result?.player1.winGroundPerc.toFixed(2) || 0}% Chance Player 1
+              Wins Ground Combat
+            </div>
+            <div>
+              {result?.tieSpacePerc.toFixed(2) || 0}% Chance Tie Space Combat
+            </div>
+            <div>
+              {result?.player2.winSpacePerc.toFixed(2) || 0}% Chance Player 2
+              Wins Space Combat
+            </div>
+            <div>
+              {result?.player2.winGroundPerc.toFixed(2) || 0}% Chance Player 2
+              Wins Ground Combat
+            </div>
+          </AccordionDetails>
+        </Accordion>
+      </Paper>
+      <Paper
+        style={{
+          backgroundColor: player1BackgroundColor,
+        }}
         className="ti4-combat-calc__player1 ti-combat-calc__participant"
         elevation={3}
       >
@@ -108,7 +299,7 @@ export const Ti4CombatCalculator = () => {
             setFaction: player1SetFaction,
             spaceZone: player1SpaceZone,
             planetZones: player1PlanetZones,
-            unitIsUpgraded: player1UnitIsUpgraded,
+            prototypes: player1Prototypes,
             selectedZone: player1SelectedZone,
             setSelectedZone: player1SetSelectedZone,
             addUnit: player1AddUnit,
@@ -125,7 +316,9 @@ export const Ti4CombatCalculator = () => {
         </FleetBuilderContext.Provider>
       </Paper>
       <Paper
-        style={{ backgroundColor: "rgb(245, 245, 255)" }}
+        style={{
+          backgroundColor: player2BackgroundColor,
+        }}
         className="ti4-combat-calc__player2 ti-combat-calc__participant"
         elevation={3}
       >
@@ -135,7 +328,7 @@ export const Ti4CombatCalculator = () => {
             setFaction: player2SetFaction,
             spaceZone: player2SpaceZone,
             planetZones: player2PlanetZones,
-            unitIsUpgraded: player2UnitIsUpgraded,
+            prototypes: player2Prototypes,
             selectedZone: player2SelectedZone,
             setSelectedZone: player2SetSelectedZone,
             addUnit: player2AddUnit,

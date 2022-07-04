@@ -6,31 +6,36 @@ import { UnitEnum } from "../enums/Unit.enum";
 
 export interface CombatStats {
   player1: {
-    winPerc: number;
+    winSpacePerc: number;
+    winGroundPerc: number;
   };
   player2: {
-    winPerc: number;
+    winSpacePerc: number;
+    winGroundPerc: number;
   };
-  tiePerc: number;
+  tieSpacePerc: number;
 }
 
-export const simulateCombat: (
+export const simulateCombat: (options: {
   player1: {
     faction: Immutable<Faction>;
     space: Immutable<Map<string, Unit>>;
     planets: Immutable<Map<string, Map<string, Unit>>>;
-  },
+  };
   player2: {
     faction: Immutable<Faction>;
     space: Immutable<Map<string, Unit>>;
     planets: Immutable<Map<string, Map<string, Unit>>>;
-  },
-  planetId?: string
-) => CombatStats = (player1, player2, planetId) => {
+  };
+  planetId?: string | undefined;
+}) => CombatStats = (options) => {
+  const { player1, player2, planetId } = options;
   const numSimulations = 10000;
 
-  let player1Wins = 0;
-  let player2Wins = 0;
+  let player1WinsSpace = 0;
+  let player1WinsGround = 0;
+  let player2WinsSpace = 0;
+  let player2WinsGround = 0;
 
   // simulate combat a number of times and record the results
   for (
@@ -98,6 +103,19 @@ export const simulateCombat: (
     }
     if (player2Simulator.hasUnitsRemainingInSpace()) {
       player2Simulator.destroyExcessFightersThenGroundForces();
+    }
+
+    // register stats for space combat
+    if (
+      player1Simulator.hasUnitsRemainingInSpace() &&
+      !player2Simulator.hasUnitsRemainingInSpace()
+    ) {
+      player1WinsSpace += 1;
+    } else if (
+      !player1Simulator.hasUnitsRemainingInSpace() &&
+      player2Simulator.hasUnitsRemainingInSpace()
+    ) {
+      player2WinsSpace += 1;
     }
 
     // invasion
@@ -192,49 +210,38 @@ export const simulateCombat: (
         })
       ) {
         if (isPlayer1Invading) {
-          player1Wins += 1;
+          player1WinsGround += 1;
         } else {
-          player2Wins += 1;
+          player2WinsGround += 1;
         }
       } else if (
         !invadingPlayerSimulator.hasUnitsRemainingOnPlanet({
           planetId,
-        }) &&
-        defendingPlayerSimulator.hasUnitsRemainingOnPlanet({
-          planetId,
         })
       ) {
+        // defender wins on a tie
         if (isPlayer1Invading) {
-          player2Wins += 1;
+          player2WinsGround += 1;
         } else {
-          player1Wins += 1;
+          player1WinsGround += 1;
         }
-      }
-    } else {
-      // register stats for space combat
-      if (
-        player1Simulator.hasUnitsRemainingInSpace() &&
-        !player2Simulator.hasUnitsRemainingInSpace()
-      ) {
-        player1Wins += 1;
-      } else if (
-        !player1Simulator.hasUnitsRemainingInSpace() &&
-        player2Simulator.hasUnitsRemainingInSpace()
-      ) {
-        player2Wins += 1;
       }
     }
   }
 
   const result: CombatStats = {
     player1: {
-      winPerc: (player1Wins / numSimulations) * 100,
+      winSpacePerc: (player1WinsSpace / numSimulations) * 100,
+      winGroundPerc: (player1WinsGround / numSimulations) * 100,
     },
     player2: {
-      winPerc: (player2Wins / numSimulations) * 100,
+      winSpacePerc: (player2WinsSpace / numSimulations) * 100,
+      winGroundPerc: (player2WinsGround / numSimulations) * 100,
     },
-    tiePerc:
-      ((numSimulations - (player1Wins + player2Wins)) / numSimulations) * 100,
+    tieSpacePerc:
+      ((numSimulations - (player1WinsSpace + player2WinsSpace)) /
+        numSimulations) *
+      100,
   };
   return result;
 };
