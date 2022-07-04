@@ -42,6 +42,7 @@ export const FactionFleetBuilderForm = (
         <FormControl fullWidth>
           <InputLabel id="faction-select-label">Faction</InputLabel>
           <Select
+            className="faction-fleet-builder-form__faction-select"
             value={context.faction?.factionEnum ?? ""}
             labelId="faction-select-label"
             label="Faction"
