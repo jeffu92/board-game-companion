@@ -1,18 +1,19 @@
-import { FavoriteBorder, HeartBrokenOutlined } from "@mui/icons-material";
+import { RemoveModeratorRounded, ShieldRounded } from "@mui/icons-material";
 import { Button, IconButton } from "@mui/material";
+import { Immutable } from "immer";
 import { useCallback, useContext } from "react";
+import { Unit } from "../../../../../../../../../../../../ti4/classes/units/Unit.class";
 import { FleetBuilderContext } from "../../../../../../../../../../contexts/FactionBuilderContext.context";
+import { UpgradeDowngradeButton } from "../../../../../UpgradeDowngradeButton/UpgradeDowngradeButton.component";
 import "./ShipConfiguration.component.css";
 
 interface ShipConfigurationProps {
   id: string;
-  name: string;
-  canSustainDamage: boolean;
-  hasSustainedDamage: boolean;
+  unit: Immutable<Unit>;
 }
 
 export const ShipConfiguration = (props: ShipConfigurationProps) => {
-  const { id, name, canSustainDamage, hasSustainedDamage } = props;
+  const { id, unit } = props;
   const context = useContext(FleetBuilderContext);
 
   const handleSustainDamageClick = useCallback(
@@ -34,21 +35,21 @@ export const ShipConfiguration = (props: ShipConfigurationProps) => {
 
   return (
     <div className="ship-configuration">
-      <span></span>
-      <Button onClick={handleRemoveClick}>{name}</Button>
-      {canSustainDamage ? (
-        hasSustainedDamage ? (
+      {unit.canSustainDamage ? (
+        unit.hasSustainedDamage ? (
           <IconButton color="error" onClick={handleRepairDamageClick}>
-            <HeartBrokenOutlined />
+            <RemoveModeratorRounded />
           </IconButton>
         ) : (
           <IconButton color="success" onClick={handleSustainDamageClick}>
-            <FavoriteBorder />
+            <ShieldRounded />
           </IconButton>
         )
       ) : (
         <span />
       )}
+      <Button onClick={handleRemoveClick}>{unit.name}</Button>
+      {unit.upgrade ? <UpgradeDowngradeButton unit={unit} /> : <span></span>}
     </div>
   );
 };

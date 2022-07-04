@@ -87,15 +87,7 @@ export const UnitZone = (props: UnitZoneProps) => {
       ) : (
         <div style={{ margin: "10px" }}>
           {Array.from(units.entries()).map(([id, unit]) => {
-            return (
-              <ShipConfiguration
-                key={id}
-                id={id}
-                name={unit.name}
-                canSustainDamage={unit.canSustainDamage ?? false}
-                hasSustainedDamage={unit.hasSustainedDamage ?? false}
-              />
-            );
+            return <ShipConfiguration key={id} id={id} unit={unit} />;
           })}
         </div>
       )}

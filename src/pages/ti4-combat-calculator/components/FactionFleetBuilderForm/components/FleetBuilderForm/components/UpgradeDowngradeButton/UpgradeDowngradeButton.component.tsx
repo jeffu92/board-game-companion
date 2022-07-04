@@ -1,27 +1,35 @@
 import { ArrowDownwardRounded, ArrowUpwardRounded } from "@mui/icons-material";
 import { IconButton } from "@mui/material";
-import { useCallback } from "react";
+import { Immutable } from "immer";
+import { useCallback, useContext } from "react";
+import { Unit } from "../../../../../../../../ti4/classes/units/Unit.class";
+import { FleetBuilderContext } from "../../../../../../contexts/FactionBuilderContext.context";
 
 export interface UpgradeDowngradeButtonProps {
-  isUpgraded: boolean;
-  onUpgradeClick: () => void;
-  onDowngradeClick: () => void;
+  unit: Immutable<Unit>;
 }
 
 export const UpgradeDowngradeButton = (props: UpgradeDowngradeButtonProps) => {
-  const { isUpgraded, onUpgradeClick, onDowngradeClick } = props;
+  const { unit } = props;
+  const context = useContext(FleetBuilderContext);
 
   const handleUpgradeClick = useCallback(() => {
-    onUpgradeClick();
-  }, [onUpgradeClick]);
+    context?.changeGrade({
+      unitEnum: unit.unitEnum,
+      shouldUpgrade: true,
+    });
+  }, [context, unit.unitEnum]);
 
   const handleDowngradeClick = useCallback(() => {
-    onDowngradeClick();
-  }, [onDowngradeClick]);
+    context?.changeGrade({
+      unitEnum: unit.unitEnum,
+      shouldUpgrade: false,
+    });
+  }, [context, unit.unitEnum]);
 
   return (
     <>
-      {isUpgraded ? (
+      {unit.isUpgraded ? (
         <IconButton onClick={handleDowngradeClick} color="error">
           <ArrowDownwardRounded />
         </IconButton>

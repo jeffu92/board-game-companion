@@ -8,7 +8,7 @@ import {
   SelectChangeEvent,
 } from "@mui/material";
 import "./AddUnitsPanel.component.css";
-import { UpgradeDowngradeButton } from "./UpgradeDowngradeButton/UpgradeDowngradeButton.component";
+import { UpgradeDowngradeButton } from "../UpgradeDowngradeButton/UpgradeDowngradeButton.component";
 import { useCallback, useContext } from "react";
 import { FleetBuilderContext } from "../../../../../../contexts/FactionBuilderContext.context";
 import { SPACE_ZONE_ID } from "../../../../../../../../ti4/hooks/useFleetBuilder";
@@ -68,31 +68,15 @@ export const AddUnitsPanel = () => {
           const unitName = unit.name;
           const addThisUnit = () => context.addUnit(unitEnum);
           if (context.canUnitBeAddedToSelectedZone(unit)) {
-            if (unit?.upgrade) {
-              return (
-                <div key={unitEnum} className="add-units-panel__container">
-                  <span></span>
-                  <Button onClick={addThisUnit}>{unitName}</Button>
-                  <UpgradeDowngradeButton
-                    isUpgraded={unit.isUpgraded}
-                    onUpgradeClick={() =>
-                      context.changeGrade({ unitEnum, shouldUpgrade: true })
-                    }
-                    onDowngradeClick={() =>
-                      context.changeGrade({ unitEnum, shouldUpgrade: false })
-                    }
-                  />
-                </div>
-              );
-            }
-
             return (
               <div key={unitEnum} className="add-units-panel__container">
                 <span></span>
-                <Button key={`${unitEnum}-addbutton`} onClick={addThisUnit}>
-                  {unitName}
-                </Button>
-                <span key={`${unitEnum}-upgrade-placeholder`}></span>
+                <Button onClick={addThisUnit}>{unitName}</Button>
+                {unit.upgrade ? (
+                  <UpgradeDowngradeButton unit={unit} />
+                ) : (
+                  <span></span>
+                )}
               </div>
             );
           }
