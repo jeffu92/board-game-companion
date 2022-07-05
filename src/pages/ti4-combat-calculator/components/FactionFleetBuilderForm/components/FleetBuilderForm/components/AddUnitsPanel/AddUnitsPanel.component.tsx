@@ -61,7 +61,9 @@ export const AddUnitsPanel = () => {
           borderBottom: "1px lightgray solid",
         }}
       >
-        <Button onClick={context.addPlanet}>Add Planet</Button>
+        <Button onClick={context.addPlanet} title="Add a planet.">
+          Add Planet
+        </Button>
       </div>
       <div style={{ padding: "20px" }}>
         {Array.from(context.prototypes).map(([unitEnum, unit]) => {
@@ -71,7 +73,9 @@ export const AddUnitsPanel = () => {
             return (
               <div key={unitEnum} className="add-units-panel__container">
                 <span></span>
-                <Button onClick={addThisUnit}>{unitName}</Button>
+                <Button onClick={addThisUnit} title={`Add ${unitName}.`}>
+                  {unitName}
+                </Button>
                 {unit.upgrade ? (
                   <UpgradeDowngradeButton unit={unit} />
                 ) : (

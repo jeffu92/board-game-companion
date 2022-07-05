@@ -37,18 +37,27 @@ export const ShipConfiguration = (props: ShipConfigurationProps) => {
     <div className="ship-configuration">
       {unit.canSustainDamage ? (
         unit.hasSustainedDamage ? (
-          <IconButton color="error" onClick={handleRepairDamageClick}>
+          <IconButton
+            onClick={handleRepairDamageClick}
+            title="Has sustained damage. Click to repair damage."
+          >
             <RemoveModeratorRounded />
           </IconButton>
         ) : (
-          <IconButton color="success" onClick={handleSustainDamageClick}>
+          <IconButton
+            color="success"
+            onClick={handleSustainDamageClick}
+            title="Can sustain damage. Click to sustain damage."
+          >
             <ShieldRounded />
           </IconButton>
         )
       ) : (
         <span />
       )}
-      <Button onClick={handleRemoveClick}>{unit.name}</Button>
+      <Button onClick={handleRemoveClick} title={`Delete this ${unit.name}.`}>
+        {unit.name}
+      </Button>
       {unit.upgrade ? <UpgradeDowngradeButton unit={unit} /> : <span></span>}
     </div>
   );

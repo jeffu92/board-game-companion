@@ -49,6 +49,8 @@ export const UnitZone = (props: UnitZoneProps) => {
     return null;
   }
 
+  const isTheDefendingZone = context.defendingZoneId === id;
+
   return (
     <Paper
       className="unit-zone"
@@ -58,26 +60,37 @@ export const UnitZone = (props: UnitZoneProps) => {
     >
       <div className="unit-zone__title-container">
         <IconButton
-          color="success"
+          color={isTheDefendingZone ? "error" : "default"}
           onClick={onSimulateZone}
           disabled={!context.shouldAllowSimulate}
+          title={
+            isTheDefendingZone
+              ? "Simulation occured here. Click to run simulation again."
+              : "Simulate."
+          }
         >
-          {context.defendingZoneId === id ? (
-            <RocketLaunchRounded />
-          ) : (
-            <BarChartRounded />
-          )}
+          {isTheDefendingZone ? <RocketLaunchRounded /> : <BarChartRounded />}
         </IconButton>
-        <Button className="unit-zone__title" onClick={onSelectZone}>
+        <Button
+          className="unit-zone__title"
+          onClick={onSelectZone}
+          title="Select to add units to this area."
+        >
           {name}
         </Button>
         {remainingCapacity !== undefined && (
-          <Typography sx={{ color: capacityColor, fontWeight: "bold" }}>
+          <Typography
+            sx={{ color: capacityColor, fontWeight: "bold" }}
+            title="Remaining capacity."
+          >
             {remainingCapacity}
           </Typography>
         )}
         {onRemoveZone && (
-          <IconButton color="error" onClick={onRemoveZone}>
+          <IconButton
+            onClick={onRemoveZone}
+            title="Delete planet and all units."
+          >
             <CloseRounded />
           </IconButton>
         )}
