@@ -1,48 +1,23 @@
 import { PlayerSimulator } from "../../../entities/PlayerSimulator.class";
-import { getAllCombatHooks } from "../hooks/getAllCombatHooks";
-
-type SpaceCombatSimulationHooks = Pick<
-  ReturnType<typeof getAllCombatHooks>,
-  | "attackerSpaceCombatRollModifiers"
-  | "attackerSpaceCombatRound1RollModifiers"
-  | "defenderSpaceCombatRollModifiers"
-  | "defenderSpaceCombatRound1RollModifiers"
->;
 
 export function simulateSpaceCombat(options: {
   attackerSimulator: PlayerSimulator;
   defenderSimulator: PlayerSimulator;
-  hooks: SpaceCombatSimulationHooks;
 }) {
-  const { attackerSimulator, defenderSimulator, hooks } = options;
+  const { attackerSimulator, defenderSimulator } = options;
 
   // space combat
-  let spaceCombatRound = 1;
-  while (
+  for (
+    let round = 1;
     attackerSimulator.hasShipsRemainingInSpace &&
-    defenderSimulator.hasShipsRemainingInSpace
+    defenderSimulator.hasShipsRemainingInSpace;
+    round++
   ) {
-    const attackerUnitRollModifiersThisRound = [
-      ...hooks.attackerSpaceCombatRollModifiers,
-    ];
-    const defenderUnitRollModifiersThisRound = [
-      ...hooks.defenderSpaceCombatRollModifiers,
-    ];
-
-    if (spaceCombatRound === 1) {
-      attackerUnitRollModifiersThisRound.push(
-        ...hooks.attackerSpaceCombatRound1RollModifiers
-      );
-      defenderUnitRollModifiersThisRound.push(
-        ...hooks.defenderSpaceCombatRound1RollModifiers
-      );
-    }
-
     const remainingAttackerUnitHits = attackerSimulator.simulateSpaceCombat({
-      rollModifiers: attackerUnitRollModifiersThisRound,
+      round,
     });
     const remainingDefenderUnitHits = defenderSimulator.simulateSpaceCombat({
-      rollModifiers: defenderUnitRollModifiersThisRound,
+      round,
     });
     attackerSimulator.assignHitsToShips({
       numHits: remainingDefenderUnitHits,
@@ -50,5 +25,7 @@ export function simulateSpaceCombat(options: {
     defenderSimulator.assignHitsToShips({
       numHits: remainingAttackerUnitHits,
     });
+
+    round++;
   }
 }

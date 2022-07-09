@@ -1,10 +1,4 @@
 import { PlayerSimulator } from "../../../entities/PlayerSimulator.class";
-import { getAllCombatHooks } from "../hooks/getAllCombatHooks";
-
-type GroundCombatSimulationHooks = Pick<
-  ReturnType<typeof getAllCombatHooks>,
-  "attackerGroundCombatRollModifiers" | "defenderGroundCombatRollModifiers"
->;
 
 /**
  * Simulates the ground combat step of an invasion.
@@ -14,31 +8,32 @@ export function simulateGroundCombat(options: {
   attackerSimulator: PlayerSimulator;
   defenderSimulator: PlayerSimulator;
   planetId: string;
-  hooks: GroundCombatSimulationHooks;
 }) {
-  const { attackerSimulator, defenderSimulator, planetId, hooks } = options;
+  const { attackerSimulator, defenderSimulator, planetId } = options;
 
   if (
     attackerSimulator.doesPlanetExist({ planetId }) &&
     defenderSimulator.doesPlanetExist({ planetId })
   ) {
     // ground combat
-    while (
+    for (
+      let round = 1;
       attackerSimulator.hasGroundForcesRemainingOnPlanet({
         planetId,
       }) &&
       defenderSimulator.hasGroundForcesRemainingOnPlanet({
         planetId,
-      })
+      });
+      round++
     ) {
       const remainingInvadingUnitHits = attackerSimulator.simulateGroundCombat({
         planetId,
-        rollModifiers: hooks.attackerGroundCombatRollModifiers,
+        round,
       });
       const remainingDefendingUnitHits = defenderSimulator.simulateGroundCombat(
         {
           planetId,
-          rollModifiers: hooks.defenderGroundCombatRollModifiers,
+          round,
         }
       );
 

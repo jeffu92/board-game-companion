@@ -1,6 +1,5 @@
 import { PlayerSimulator } from "../../entities/PlayerSimulator.class";
 import { CombatStats } from "./CombatStats";
-import { getAllCombatHooks } from "./hooks/getAllCombatHooks";
 import { PlayerCombatInfo } from "./PlayerCombatInfo";
 import { commitGroundForces } from "./steps/commitGroundForces";
 import { establishControl } from "./steps/establishControl";
@@ -44,15 +43,6 @@ export function simulateCombat(options: {
         let defenderWinsSpace = 0;
         let defenderWinsGround = 0;
 
-        const {
-          attackerSpaceCombatRollModifiers,
-          defenderSpaceCombatRollModifiers,
-          attackerGroundCombatRollModifiers,
-          defenderGroundCombatRollModifiers,
-          attackerSpaceCombatRound1RollModifiers,
-          defenderSpaceCombatRound1RollModifiers,
-        } = getAllCombatHooks({ attacker, defender });
-
         // simulate combat a number of times and record the results
         for (
           let simulationRound = 0;
@@ -75,12 +65,6 @@ export function simulateCombat(options: {
           simulateSpaceCombat({
             attackerSimulator,
             defenderSimulator,
-            hooks: {
-              attackerSpaceCombatRollModifiers,
-              attackerSpaceCombatRound1RollModifiers,
-              defenderSpaceCombatRollModifiers,
-              defenderSpaceCombatRound1RollModifiers,
-            },
           });
 
           simulateDestructionOfExcessFightersThenGroundForces({
@@ -124,10 +108,6 @@ export function simulateCombat(options: {
               attackerSimulator,
               defenderSimulator,
               planetId,
-              hooks: {
-                attackerGroundCombatRollModifiers,
-                defenderGroundCombatRollModifiers,
-              },
             });
 
             establishControl({

@@ -18,7 +18,11 @@ export const JolNar: Faction = {
   factionEnum: FactionEnum.JOLNAR,
   getUnits: () => supportedUnits,
   hooks: {
-    spaceCombatRollModifier: () => -1,
-    groundCombatRollModifier: () => -1,
+    combatRoll: {
+      modifier: () => -1,
+      applyIn: "any",
+      applyOnRound: "any",
+      applyNumTimes: "any",
+    },
   },
 };

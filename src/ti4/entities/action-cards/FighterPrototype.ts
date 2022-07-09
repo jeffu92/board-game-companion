@@ -8,8 +8,13 @@ export const FighterPrototype: Immutable<ActionCard> = {
   actionCardEnum: ActionCardEnum.FIGHTERPROTOTYPE,
   numAvailable: 1,
   hooks: {
-    spaceCombatRound1RollModifier: (unit: Unit) => {
-      return unit.unitEnum === UnitEnum.FIGHTER ? 2 : 0;
+    combatRoll: {
+      modifier: (unit: Unit) => {
+        return unit.unitEnum === UnitEnum.FIGHTER ? 2 : 0;
+      },
+      applyIn: "space",
+      applyOnRound: "first",
+      applyNumTimes: "once",
     },
   },
 };
