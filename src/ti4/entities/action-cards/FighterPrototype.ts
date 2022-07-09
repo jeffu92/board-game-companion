@@ -7,7 +7,7 @@ import { ActionCard } from "./ActionCard";
 export const FighterPrototype: Immutable<ActionCard> = {
   actionCardEnum: ActionCardEnum.FIGHTERPROTOTYPE,
   numAvailable: 1,
-  combatSimulationHooks: {
+  hooks: {
     spaceCombatRound1RollModifier: (unit: Unit) => {
       return unit.unitEnum === UnitEnum.FIGHTER ? 2 : 0;
     },

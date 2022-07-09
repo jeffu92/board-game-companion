@@ -3,7 +3,7 @@ import { getAllCombatHooks } from "../hooks/getAllCombatHooks";
 
 type GroundCombatSimulationHooks = Pick<
   ReturnType<typeof getAllCombatHooks>,
-  "attackerGlobalUnitRollModifiers" | "defenderGlobalUnitRollModifiers"
+  "attackerGroundCombatRollModifiers" | "defenderGroundCombatRollModifiers"
 >;
 
 /**
@@ -33,12 +33,12 @@ export function simulateGroundCombat(options: {
     ) {
       const remainingInvadingUnitHits = attackerSimulator.simulateGroundCombat({
         planetId,
-        rollModifiers: hooks.attackerGlobalUnitRollModifiers,
+        rollModifiers: hooks.attackerGroundCombatRollModifiers,
       });
       const remainingDefendingUnitHits = defenderSimulator.simulateGroundCombat(
         {
           planetId,
-          rollModifiers: hooks.defenderGlobalUnitRollModifiers,
+          rollModifiers: hooks.defenderGroundCombatRollModifiers,
         }
       );
 

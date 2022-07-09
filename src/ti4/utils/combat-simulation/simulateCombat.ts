@@ -16,11 +16,12 @@ export function simulateCombat(options: {
   player1: PlayerCombatInfo;
   player2: PlayerCombatInfo;
   planetId?: string | undefined;
+  numSimulations?: number | undefined;
 }) {
   return new Promise<CombatStats>((resolve, reject) => {
     setTimeout(() => {
       try {
-        const { player1, player2, planetId } = options;
+        const { player1, player2, planetId, numSimulations = 10000 } = options;
 
         let attackingPlayer: "player1" | "player2" = "player1";
         if (planetId) {
@@ -44,13 +45,14 @@ export function simulateCombat(options: {
         let defenderWinsGround = 0;
 
         const {
-          attackerGlobalUnitRollModifiers,
-          defenderGlobalUnitRollModifiers,
+          attackerSpaceCombatRollModifiers,
+          defenderSpaceCombatRollModifiers,
+          attackerGroundCombatRollModifiers,
+          defenderGroundCombatRollModifiers,
           attackerSpaceCombatRound1RollModifiers,
           defenderSpaceCombatRound1RollModifiers,
         } = getAllCombatHooks({ attacker, defender });
 
-        const numSimulations = 10000;
         // simulate combat a number of times and record the results
         for (
           let simulationRound = 0;
@@ -74,9 +76,9 @@ export function simulateCombat(options: {
             attackerSimulator,
             defenderSimulator,
             hooks: {
-              attackerGlobalUnitRollModifiers,
+              attackerSpaceCombatRollModifiers,
               attackerSpaceCombatRound1RollModifiers,
-              defenderGlobalUnitRollModifiers,
+              defenderSpaceCombatRollModifiers,
               defenderSpaceCombatRound1RollModifiers,
             },
           });
@@ -123,8 +125,8 @@ export function simulateCombat(options: {
               defenderSimulator,
               planetId,
               hooks: {
-                attackerGlobalUnitRollModifiers,
-                defenderGlobalUnitRollModifiers,
+                attackerGroundCombatRollModifiers,
+                defenderGroundCombatRollModifiers,
               },
             });
 

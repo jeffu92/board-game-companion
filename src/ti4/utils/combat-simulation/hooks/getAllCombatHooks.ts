@@ -1,59 +1,44 @@
-import { actionCardMap } from "../../../entities/action-cards/actionCardMap";
 import { CombatDiceRollModifer } from "../../../entities/units/Unit.class";
 import { PlayerCombatInfo } from "../PlayerCombatInfo";
+import { getPlayerCombatHooks } from "./getPlayerCombatHooks";
 
+/**
+ * Generates all combat hooks for an attacking and a defending player.
+ * Intended for use in combat simulation.
+ */
 export function getAllCombatHooks(options: {
   attacker: PlayerCombatInfo;
   defender: PlayerCombatInfo;
 }): {
-  attackerGlobalUnitRollModifiers: CombatDiceRollModifer[];
-  defenderGlobalUnitRollModifiers: CombatDiceRollModifer[];
+  attackerSpaceCombatRollModifiers: CombatDiceRollModifer[];
+  defenderSpaceCombatRollModifiers: CombatDiceRollModifer[];
+  attackerGroundCombatRollModifiers: CombatDiceRollModifer[];
+  defenderGroundCombatRollModifiers: CombatDiceRollModifer[];
   attackerSpaceCombatRound1RollModifiers: CombatDiceRollModifer[];
   defenderSpaceCombatRound1RollModifiers: CombatDiceRollModifer[];
 } {
   const { attacker, defender } = options;
 
-  // setup global combat variables
-  const attackerGlobalUnitRollModifiers: Array<CombatDiceRollModifer> = [];
-  if (attacker.faction.getCombatRollModifier) {
-    attackerGlobalUnitRollModifiers.push(
-      attacker.faction.getCombatRollModifier
-    );
-  }
-  const defenderGlobalUnitRollModifiers: Array<CombatDiceRollModifer> = [];
-  if (defender.faction.getCombatRollModifier) {
-    defenderGlobalUnitRollModifiers.push(
-      defender.faction.getCombatRollModifier
-    );
-  }
-
-  // setup space combat round 1 roll modifiers
-  const attackerSpaceCombatRound1RollModifiers: Array<CombatDiceRollModifer> = [];
-  attacker.actionCards.forEach((_, actionCardEnum) => {
-    const actionCard = actionCardMap.get(actionCardEnum);
-    if (actionCard) {
-      const mod =
-        actionCard.combatSimulationHooks.spaceCombatRound1RollModifier;
-      if (mod) {
-        attackerSpaceCombatRound1RollModifiers.push(mod);
-      }
-    }
+  const {
+    spaceCombatRollModifiers: attackerSpaceCombatRollModifiers,
+    groundCombatRollModifiers: attackerGroundCombatRollModifiers,
+    spaceCombatRound1RollModifiers: attackerSpaceCombatRound1RollModifiers,
+  } = getPlayerCombatHooks({
+    player: attacker,
   });
-  const defenderSpaceCombatRound1RollModifiers: Array<CombatDiceRollModifer> = [];
-  defender.actionCards.forEach((_, actionCardEnum) => {
-    const actionCard = actionCardMap.get(actionCardEnum);
-    if (actionCard) {
-      const mod =
-        actionCard.combatSimulationHooks.spaceCombatRound1RollModifier;
-      if (mod) {
-        defenderSpaceCombatRound1RollModifiers.push(mod);
-      }
-    }
+  const {
+    spaceCombatRollModifiers: defenderSpaceCombatRollModifiers,
+    groundCombatRollModifiers: defenderGroundCombatRollModifiers,
+    spaceCombatRound1RollModifiers: defenderSpaceCombatRound1RollModifiers,
+  } = getPlayerCombatHooks({
+    player: defender,
   });
 
   return {
-    attackerGlobalUnitRollModifiers,
-    defenderGlobalUnitRollModifiers,
+    attackerSpaceCombatRollModifiers,
+    defenderSpaceCombatRollModifiers,
+    attackerGroundCombatRollModifiers,
+    defenderGroundCombatRollModifiers,
     attackerSpaceCombatRound1RollModifiers,
     defenderSpaceCombatRound1RollModifiers,
   };

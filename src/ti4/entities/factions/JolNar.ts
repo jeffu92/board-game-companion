@@ -17,5 +17,8 @@ const supportedUnits: Set<UnitEnum> = new Set<UnitEnum>([
 export const JolNar: Faction = {
   factionEnum: FactionEnum.JOLNAR,
   getUnits: () => supportedUnits,
-  getCombatRollModifier: () => -1,
+  hooks: {
+    spaceCombatRollModifier: () => -1,
+    groundCombatRollModifier: () => -1,
+  },
 };

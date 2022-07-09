@@ -3,9 +3,9 @@ import { getAllCombatHooks } from "../hooks/getAllCombatHooks";
 
 type SpaceCombatSimulationHooks = Pick<
   ReturnType<typeof getAllCombatHooks>,
-  | "attackerGlobalUnitRollModifiers"
+  | "attackerSpaceCombatRollModifiers"
   | "attackerSpaceCombatRound1RollModifiers"
-  | "defenderGlobalUnitRollModifiers"
+  | "defenderSpaceCombatRollModifiers"
   | "defenderSpaceCombatRound1RollModifiers"
 >;
 
@@ -22,12 +22,11 @@ export function simulateSpaceCombat(options: {
     attackerSimulator.hasShipsRemainingInSpace &&
     defenderSimulator.hasShipsRemainingInSpace
   ) {
-    // make a copy of the
     const attackerUnitRollModifiersThisRound = [
-      ...hooks.attackerGlobalUnitRollModifiers,
+      ...hooks.attackerSpaceCombatRollModifiers,
     ];
     const defenderUnitRollModifiersThisRound = [
-      ...hooks.defenderGlobalUnitRollModifiers,
+      ...hooks.defenderSpaceCombatRollModifiers,
     ];
 
     if (spaceCombatRound === 1) {

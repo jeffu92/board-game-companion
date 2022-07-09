@@ -1,6 +1,7 @@
 import { CombatDiceRollModifer } from "../../entities/units/Unit.class";
 
 export interface CombatSimulationHooks {
-  globalCombatRollModifier: CombatDiceRollModifer | undefined;
+  spaceCombatRollModifier: CombatDiceRollModifer | undefined;
+  groundCombatRollModifier: CombatDiceRollModifer | undefined;
   spaceCombatRound1RollModifier: CombatDiceRollModifer | undefined;
 }

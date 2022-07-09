@@ -4,5 +4,5 @@ import { CombatSimulationHooks } from "../../utils/combat-simulation/CombatSimul
 export interface ActionCard {
   actionCardEnum: ActionCardEnum;
   numAvailable: number;
-  combatSimulationHooks: Partial<CombatSimulationHooks>;
+  hooks: Partial<CombatSimulationHooks>;
 }
