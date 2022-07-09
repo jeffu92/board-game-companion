@@ -2,7 +2,7 @@ import { StarRounded } from "@mui/icons-material";
 import { IconButton } from "@mui/material";
 import { Immutable } from "immer";
 import { useCallback, useContext } from "react";
-import { Unit } from "../../../../../../../../ti4/classes/units/Unit.class";
+import { Unit } from "../../../../../../../../ti4/entities/units/Unit.class";
 import { FleetBuilderContext } from "../../../../../../contexts/FactionBuilderContext.context";
 
 export interface UpgradeDowngradeButtonProps {

@@ -1,7 +1,7 @@
-import { Faction } from "./Faction.class";
-import { JolNar } from "./JolNar.class";
-import { NazRokha } from "./NazRokha.class";
-import { Winnu } from "./Winnu.class";
+import { Faction } from "./Faction";
+import { JolNar } from "./JolNar";
+import { NazRokha } from "./NazRokha";
+import { Winnu } from "./Winnu";
 import { FactionEnum } from "../../enums/Faction.enum";
 
 export const factionMap: Map<string, Faction> = new Map([

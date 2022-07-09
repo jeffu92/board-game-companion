@@ -1,5 +1,5 @@
 import { createContext } from "react";
-import { Faction } from "../../../ti4/classes/factions/Faction.class";
+import { Faction } from "../../../ti4/entities/factions/Faction";
 import { ActionCardEnum } from "../../../ti4/enums/ActionCard.enum";
 import { useFleetBuilder } from "../../../ti4/hooks/useFleetBuilder";
 

@@ -1,6 +1,6 @@
 import { useContext, useMemo } from "react";
 import { Button, IconButton, Paper, Typography } from "@mui/material";
-import { Unit } from "../../../../../../../../../../ti4/classes/units/Unit.class";
+import { Unit } from "../../../../../../../../../../ti4/entities/units/Unit.class";
 import "./UnitZone.component.css";
 import { ShipConfiguration } from "./components/ShipConfiguration/ShipConfiguration.component";
 import { Immutable } from "immer";

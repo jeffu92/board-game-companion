@@ -1,13 +1,13 @@
 import { useCallback, useMemo, useState } from "react";
-import { Unit } from "../classes/units/Unit.class";
+import { Unit } from "../entities/units/Unit.class";
 import { UnitEnum } from "../enums/Unit.enum";
 import { v4 as uuidv4 } from "uuid";
 import { useImmer } from "use-immer";
 import { Immutable } from "immer";
-import { Faction } from "../classes/factions/Faction.class";
-import { unitMap } from "../classes/units/unitMap";
+import { Faction } from "../entities/factions/Faction";
+import { unitMap } from "../entities/units/unitMap";
 import { ActionCardEnum } from "../enums/ActionCard.enum";
-import { actionCardMap } from "../classes/action-cards/actionCardMap";
+import { actionCardMap } from "../entities/action-cards/actionCardMap";
 
 export const SPACE_ZONE_ID = "Space";
 

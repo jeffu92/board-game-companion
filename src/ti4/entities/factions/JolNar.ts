@@ -1,8 +1,9 @@
 import { FactionEnum } from "../../enums/Faction.enum";
 import { UnitEnum } from "../../enums/Unit.enum";
-import { Faction } from "./Faction.class";
+import { Faction } from "./Faction";
 
 const supportedUnits: Set<UnitEnum> = new Set<UnitEnum>([
+  UnitEnum.JNSHYLARIM,
   UnitEnum.WARSUN,
   UnitEnum.DREADNOUGHT,
   UnitEnum.CRUISER,
@@ -13,7 +14,8 @@ const supportedUnits: Set<UnitEnum> = new Set<UnitEnum>([
   UnitEnum.PDS,
 ]);
 
-export const Winnu: Faction = {
-  factionEnum: FactionEnum.WINNU,
+export const JolNar: Faction = {
+  factionEnum: FactionEnum.JOLNAR,
   getUnits: () => supportedUnits,
+  getCombatRollModifier: () => -1,
 };

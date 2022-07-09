@@ -1,5 +1,5 @@
 import { Paper } from "@mui/material";
-import { CombatStats } from "../../../../ti4/utils/simulateCombat";
+import { CombatStats } from "../../../../ti4/utils/combat-simulation/CombatStats";
 import "./ResultsBar.component.css";
 
 export interface ResultsBarProps {

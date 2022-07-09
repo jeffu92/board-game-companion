@@ -2,14 +2,15 @@ import { Box, CircularProgress, Modal, Paper } from "@mui/material";
 import classNames from "classnames";
 import { Immutable } from "immer";
 import { useCallback, useMemo, useState } from "react";
-import { actionCardMap } from "../../ti4/classes/action-cards/actionCardMap";
-import { Faction } from "../../ti4/classes/factions/Faction.class";
+import { actionCardMap } from "../../ti4/entities/action-cards/actionCardMap";
+import { Faction } from "../../ti4/entities/factions/Faction";
 import { ActionCardEnum } from "../../ti4/enums/ActionCard.enum";
 import {
   SPACE_ZONE_ID,
   useFleetBuilder,
 } from "../../ti4/hooks/useFleetBuilder";
-import { CombatStats, simulateCombat } from "../../ti4/utils/simulateCombat";
+import { CombatStats } from "../../ti4/utils/combat-simulation/CombatStats";
+import { simulateCombat } from "../../ti4/utils/combat-simulation/simulateCombat";
 import { FactionFleetBuilderForm } from "./components/FactionFleetBuilderForm/FactionFleetBuilderForm.component";
 import { ResultsBar } from "./components/ResultsBar/ResultsBar.component";
 import { ResultsSummary } from "./components/ResultsSummary/ResultsSummary.component";

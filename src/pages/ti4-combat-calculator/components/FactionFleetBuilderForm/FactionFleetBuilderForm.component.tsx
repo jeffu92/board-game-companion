@@ -8,7 +8,7 @@ import {
 import { useCallback, useContext } from "react";
 import "./FactionFleetBuilderForm.component.css";
 import { FleetBuilderForm } from "./components/FleetBuilderForm/FleetBuilderForm.component";
-import { factionMap } from "../../../../ti4/classes/factions/factionMap";
+import { factionMap } from "../../../../ti4/entities/factions/factionMap";
 import { FleetBuilderContext } from "../../contexts/FactionBuilderContext.context";
 
 export interface FactionFleetBuilderFormProps {

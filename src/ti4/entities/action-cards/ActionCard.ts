@@ -1,8 +1,8 @@
 import { ActionCardEnum } from "../../enums/ActionCard.enum";
-import { CombatDiceRollModifer } from "../units/Unit.class";
+import { CombatSimulationHooks } from "../../utils/combat-simulation/CombatSimulationHooks";
 
 export interface ActionCard {
   actionCardEnum: ActionCardEnum;
   numAvailable: number;
-  getSpaceCombatRound1RollModifier?: CombatDiceRollModifer | undefined;
+  combatSimulationHooks: Partial<CombatSimulationHooks>;
 }

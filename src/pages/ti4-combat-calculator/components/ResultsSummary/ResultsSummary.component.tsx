@@ -5,13 +5,13 @@ import {
   Paper,
   Typography,
 } from "@mui/material";
-import { CombatStats } from "../../../../ti4/utils/simulateCombat";
 import { ExpandMoreRounded } from "@mui/icons-material";
 import "./ResultsSummary.component.css";
 import { useMemo } from "react";
 import { Immutable } from "immer";
-import { Faction } from "../../../../ti4/classes/factions/Faction.class";
+import { Faction } from "../../../../ti4/entities/factions/Faction";
 import { SPACE_ZONE_ID } from "../../../../ti4/hooks/useFleetBuilder";
+import { CombatStats } from "../../../../ti4/utils/combat-simulation/CombatStats";
 
 export interface ResultsSummaryProps {
   combatStats: CombatStats;
